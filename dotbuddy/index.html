@@ -12,6 +12,7 @@
 <meta property="og:description" content="손끝으로 탐색하고, 듣고, 답하며 배우는 닷패드 학습 여정">
 <meta property="og:image" content="./assets/dot-buddy-hero-background.png">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/wanteddev/wanted-sans@v1.0.1/packages/wanted-sans/fonts/webfonts/variable/split/WantedSansVariable.min.css">
+<link rel="stylesheet" href="./assets/service-console.css">
 <title>DOT BUDDY — Tactile Learning with DotPad</title>
 <style>
   :root{
@@ -330,6 +331,17 @@
 </head>
 <body>
 <a class="skip-link" id="skipLink" href="#main" hidden>학습 화면으로 건너뛰기</a>
+<header class="service-header" aria-label="닷 버디 체험 세션">
+  <a class="service-logo" href="#gate" aria-label="Dot Buddy 홈">
+    <img src="./assets/mascot-avatar.png" alt="" width="36" height="36">
+    <span><b>DOT BUDDY</b><em>체험 세션</em></span>
+  </a>
+  <div class="service-session" aria-label="현재 세션 상태">
+    <span class="presence-dot" aria-hidden="true"></span>
+    <span id="serviceStatus">체험 준비 중</span>
+  </div>
+  <button class="service-help" id="serviceHelp" type="button">운영 안내</button>
+</header>
 <div class="shell">
 
   <div class="top">
@@ -1332,5 +1344,54 @@
     openFirstConnect,pickShape,get firstConnectShown(){return firstConnectShown;}};
 })();
 </script>
+<aside class="session-console" id="sessionConsole" aria-labelledby="consoleTitle" hidden>
+  <div class="console-head">
+    <div>
+      <p class="console-kicker">DOT CARE TEAM</p>
+      <h2 id="consoleTitle">체험 진행 콘솔</h2>
+    </div>
+    <span class="sync-state" id="syncState"><i></i>이 기기에 저장됨</span>
+  </div>
+  <div class="slide-state">
+    <span id="consoleProgress">슬라이드 1 / 1</span>
+    <strong id="consoleTitleText">곧 첫 안내를 시작해요</strong>
+    <div class="progress-rail" aria-hidden="true"><i id="consoleRail"></i></div>
+  </div>
+  <div class="console-actions" aria-label="슬라이드 진행 제어">
+    <button type="button" id="consolePrev">이전</button>
+    <button type="button" class="primary" id="consoleSpeak">이 슬라이드 듣기</button>
+    <button type="button" id="consoleNext">다음</button>
+  </div>
+  <section class="cue-card" aria-labelledby="cueTitle">
+    <p class="console-kicker" id="cueTitle">담당자 큐</p>
+    <p id="consoleCue">사용자가 손으로 충분히 탐색할 수 있도록, 안내 후 잠시 기다려 주세요.</p>
+  </section>
+  <section class="family-card" aria-labelledby="familyTitle">
+    <div class="family-title"><p class="console-kicker" id="familyTitle">보호자에게 보이는 기록</p><span id="sessionMinutes">00:00</span></div>
+    <dl>
+      <div><dt>살펴본 슬라이드</dt><dd id="seenSlides">0</dd></div>
+      <div><dt>다시 들은 안내</dt><dd id="replayedSlides">0</dd></div>
+      <div><dt>닷패드</dt><dd id="padState">연결 전</dd></div>
+    </dl>
+  </section>
+  <div class="console-footer">
+    <button type="button" id="shareSummary">요약 저장</button>
+    <button type="button" id="openSupport">보호자 도움말</button>
+  </div>
+</aside>
+<dialog class="service-dialog" id="serviceDialog" aria-labelledby="serviceDialogTitle">
+  <form method="dialog">
+    <button class="dialog-close" aria-label="닫기">×</button>
+    <p class="console-kicker">현장 운영 방식</p>
+    <h2 id="serviceDialogTitle">설명하고, 듣고, 함께 만져보세요.</h2>
+    <ol>
+      <li><b>담당자가 시작합니다.</b><span>오늘의 체험 목표를 짧게 설명하고, 닷패드 연결을 확인합니다.</span></li>
+      <li><b>한 슬라이드씩 듣습니다.</b><span>각 안내는 다시 들을 수 있고, 충분한 탐색 시간을 남깁니다.</span></li>
+      <li><b>보호자와 요약을 봅니다.</b><span>진행 기록은 이 기기에 저장되며 기관 시스템 연결을 위한 이벤트 형식도 준비돼 있습니다.</span></li>
+    </ol>
+    <button class="dialog-cta" value="close">알겠어요</button>
+  </form>
+</dialog>
+<script src="./service-console.js"></script>
 </body>
 </html>
