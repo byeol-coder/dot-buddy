@@ -339,6 +339,11 @@
     <img src="./assets/mascot-avatar.png" alt="" width="36" height="36">
     <span><b>DOT BUDDY</b><em>체험 세션</em></span>
   </a>
+  <nav class="site-nav" aria-label="주요 메뉴">
+    <a href="#gate">체험하기</a>
+    <a href="#quickActions">내 활동</a>
+    <button type="button" onclick="document.getElementById('openLead')?.click()">Dot Pad</button>
+  </nav>
   <div class="service-session" aria-label="현재 세션 상태">
     <span class="presence-dot" aria-hidden="true"></span>
     <span id="serviceStatus">체험 준비 중</span>
@@ -401,19 +406,19 @@
   </section>
   <section class="quick-actions" id="quickActions" aria-label="닷패드 체험 빠른 안내">
     <article class="action-card">
-      <span class="action-icon" aria-hidden="true">✦</span>
+      <span class="action-icon" aria-hidden="true"><svg class="icon icon-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m12 3 1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3Z"/><path d="m19 16 .8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8L19 16Z"/></svg></span>
       <h2>처음 만나는 닷패드</h2>
       <p>담당자 안내와 함께, 한 장씩 듣고 손끝으로 탐색해 보세요.</p>
       <button class="card-link" id="quickStart" type="button">체험 시작하기 <span aria-hidden="true">→</span></button>
     </article>
     <article class="action-card">
-      <span class="action-icon" aria-hidden="true">◌</span>
+      <span class="action-icon" aria-hidden="true"><svg class="icon icon-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 11h18"/><path d="M5 11v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
       <h2>구매·도입 상담</h2>
       <p>교육, 도서관, 기관 환경에 맞는 Dot Pad 정보를 받아보세요.</p>
       <button class="card-link" id="quickLead" type="button">정보 받아보기 <span aria-hidden="true">→</span></button>
     </article>
     <article class="action-card action-card--soft">
-      <span class="action-icon" aria-hidden="true">⌁</span>
+      <span class="action-icon" aria-hidden="true"><svg class="icon icon-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 21h18"/><path d="M5 21V9l7-5 7 5v12"/><path d="M9 21v-6h6v6"/></svg></span>
       <h2>가까운 공식 파트너</h2>
       <p>지역별 공식 리셀러와 제품·구매 문의 경로를 확인할 수 있어요.</p>
       <a class="card-link" id="quickReseller" href="https://www.dotincorp.com/en/customer/reseller" target="_blank" rel="noopener">리셀러 목록 보기 <span aria-hidden="true">→</span></a>
