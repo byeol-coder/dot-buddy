@@ -340,6 +340,7 @@
     <span class="presence-dot" aria-hidden="true"></span>
     <span id="serviceStatus">체험 준비 중</span>
   </div>
+  <button class="service-lead" id="openLead" type="button">구매·파트너 안내</button>
   <button class="service-help" id="serviceHelp" type="button">운영 안내</button>
 </header>
 <div class="shell">
@@ -1390,6 +1391,25 @@
       <li><b>보호자와 요약을 봅니다.</b><span>진행 기록은 이 기기에 저장되며 기관 시스템 연결을 위한 이벤트 형식도 준비돼 있습니다.</span></li>
     </ol>
     <button class="dialog-cta" value="close">알겠어요</button>
+  </form>
+</dialog>
+<dialog class="lead-dialog" id="leadDialog" aria-labelledby="leadTitle">
+  <form id="leadForm">
+    <button class="dialog-close" type="button" id="leadClose" aria-label="닫기">×</button>
+    <p class="console-kicker">DOT PAD NEXT STEP</p>
+    <h2 id="leadTitle">체험 다음에 필요한 정보를 받아보세요.</h2>
+    <p class="lead-lede">구매 상담, 체험 기회, 가까운 공식 파트너 정보를 이메일로 보내드려요.</p>
+    <label class="lead-label" for="leadEmail">이메일 주소</label>
+    <input class="lead-input" id="leadEmail" name="email" type="email" inputmode="email" autocomplete="email" placeholder="name@example.com" required>
+    <label class="lead-check"><input id="marketingConsent" type="checkbox" required><span>Dot Pad 및 체험·구매 관련 마케팅 정보 수신에 동의합니다.</span></label>
+    <button class="lead-submit" type="submit">정보 받아보기</button>
+    <p class="lead-privacy">동의하지 않으면 이메일을 저장하지 않습니다. 언제든지 수신을 거부할 수 있습니다.</p>
+    <div class="lead-result" id="leadResult" hidden>
+      <b id="leadResultTitle">신청을 받았습니다.</b>
+      <span id="leadResultText">가까운 공식 파트너도 바로 확인할 수 있어요.</span>
+      <a class="purchase-link" id="resellerLink" href="https://www.dotincorp.com/en/customer/reseller" target="_blank" rel="noopener">공식 리셀러 목록 보기</a>
+      <a class="purchase-link subtle" id="purchaseLink" href="https://www.dotincorp.com/en/product/pad" target="_blank" rel="noopener">Dot Pad 제품·구매 문의 보기</a>
+    </div>
   </form>
 </dialog>
 <script src="./service-console.js"></script>

@@ -12,6 +12,16 @@
     try { localStorage.setItem('dotbuddy.session.events', JSON.stringify(state.events)); } catch (_) {}
     if (typeof adapter.track === 'function') Promise.resolve(adapter.track(event)).catch(()=>{});
   };
+  const captureLead = async lead => {
+    const payload = { ...lead, sessionId: sessionStorage.getItem('dotbuddy.session'), capturedAt:new Date().toISOString() };
+    if (typeof adapter.captureLead === 'function') return adapter.captureLead(payload);
+    if (adapter.leadEndpoint) {
+      const response = await fetch(adapter.leadEndpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+      if (!response.ok) throw new Error('lead_capture_failed');
+      return true;
+    }
+    return false;
+  };
   const padText = () => $('dpLbl') ? $('dpLbl').textContent : '연결 전';
   const cueFor = () => {
     const coach = $('coachText')?.textContent || '';
@@ -46,6 +56,24 @@
     const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(summary,null,2)],{type:'application/json'})); a.download='dot-buddy-session-summary.json'; a.click(); URL.revokeObjectURL(a.href); emit('summary_exported');
   });
   $('serviceHelp').addEventListener('click',()=> $('serviceDialog').showModal());
+  const leadDialog=$('leadDialog'), leadForm=$('leadForm'), leadResult=$('leadResult');
+  $('openLead').addEventListener('click',()=>{ leadDialog.showModal(); emit('lead_nudge_opened',{placement:'header'}); });
+  $('leadClose').addEventListener('click',()=>leadDialog.close());
+  leadForm.addEventListener('submit',async ev=>{
+    ev.preventDefault();
+    const email=$('leadEmail').value.trim();
+    if (!email || !$('marketingConsent').checked) return;
+    const submit=leadForm.querySelector('.lead-submit'); submit.disabled=true; submit.textContent='신청 처리 중…';
+    try {
+      const delivered=await captureLead({email, marketingConsent:true, source:'dot-buddy-experience'});
+      emit('lead_submitted',{source:'dot-buddy-experience',delivered});
+      $('leadResultTitle').textContent = delivered ? '신청을 받았습니다.' : '파트너 정보를 확인해 보세요.';
+      $('leadResultText').textContent = delivered ? '가까운 공식 파트너도 바로 확인할 수 있어요.' : '리드 저장 시스템이 연결되기 전에는 이메일을 외부로 전송하지 않습니다.';
+      leadForm.querySelector('.lead-label').hidden=true; $('leadEmail').hidden=true; $('marketingConsent').closest('label').hidden=true; submit.hidden=true; leadForm.querySelector('.lead-privacy').hidden=true; leadResult.hidden=false;
+    } catch (_) { submit.disabled=false; submit.textContent='다시 시도하기'; emit('lead_submit_failed'); }
+  });
+  document.querySelectorAll('.purchase-link').forEach(link=>link.addEventListener('click',()=>emit('purchase_link_clicked',{destination:link.href,label:link.textContent.trim()})));
+  window.addEventListener('pagehide',()=>emit('session_ended',{slidesViewed:state.seen.size,replays:state.replays,currentSlide:state.lastPage}));
   const observer = new MutationObserver(()=>{
     if (!$('main').hidden) startConsole();
     else if (state.startedAt) $('serviceStatus').textContent='체험 준비 중';

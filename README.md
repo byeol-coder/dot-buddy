@@ -23,4 +23,20 @@ python3 -m http.server 8000
 
 `dotbuddy/service-console.js`는 체험 이벤트를 기기 내에 우선 저장합니다. 기관 CRM, 예약, 상담 기록 시스템과 연결할 때는 페이지가 실행되기 전에 `window.DotBuddyIntegration.track(event)` 어댑터를 제공하면 같은 이벤트를 외부 시스템으로 전달할 수 있습니다.
 
+### 리드와 전환 이벤트
+
+구매·파트너 안내 창은 이메일과 마케팅 수신 동의를 분리해 받고, 다음 이벤트를 전송할 수 있습니다: `lead_nudge_opened`, `lead_submitted`, `purchase_link_clicked`, `slide_viewed`, `session_ended`.
+
+이메일 리드를 실제로 저장하려면 배포 템플릿에서 다음 중 하나를 설정합니다.
+
+```js
+window.DotBuddyIntegration = {
+  track: event => analyticsClient.capture(event),
+  captureLead: lead => crmClient.createLead(lead)
+  // 또는 leadEndpoint: 'https://your-secure-endpoint.example/leads'
+};
+```
+
+연동이 없을 때는 이메일을 외부로 전송하지 않습니다. 이메일과 마케팅 동의 기록은 HTTPS 기반의 승인된 CRM 또는 폼 서비스로만 전송하세요.
+
 이 설계는 네트워크가 불안정한 현장에서도 체험이 멈추지 않도록 오프라인 우선으로 동작합니다. 사용자 동의와 기관의 개인정보 처리 절차가 마련되기 전에는 외부 전송을 활성화하지 마세요.
