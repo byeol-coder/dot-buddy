@@ -6,12 +6,13 @@
 <meta name="application-name" content="DOT BUDDY">
 <meta name="theme-color" content="#FFF8EE">
 <meta name="description" content="닷패드와 함께 손끝으로 탐색하고, 듣고, 답하며 배우는 촉각 학습 여정">
+<link rel="preload" href="./content/01_intro.dtms" as="fetch" crossorigin="anonymous">
+<link rel="preload" href="./content/01_intro.iact.json" as="fetch" crossorigin="anonymous">
 <link rel="icon" type="image/png" sizes="160x159" href="./assets/mascot-avatar.png">
 <link rel="apple-touch-icon" href="./assets/mascot-avatar.png">
 <meta property="og:title" content="DOT BUDDY — Tactile Learning with DotPad">
 <meta property="og:description" content="손끝으로 탐색하고, 듣고, 답하며 배우는 닷패드 학습 여정">
 <meta property="og:image" content="./assets/dot-buddy-hero-background.png">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/wanteddev/wanted-sans@v1.0.1/packages/wanted-sans/fonts/webfonts/variable/split/WantedSansVariable.min.css">
 <link rel="stylesheet" href="./assets/service-console.css">
 <title>DOT BUDDY — Tactile Learning with DotPad</title>
 <style>
@@ -54,7 +55,7 @@
   .skip-link{position:fixed;left:16px;top:-60px;z-index:1000;background:var(--ink);color:#fff;border-radius:10px;padding:10px 14px;font-weight:750;text-decoration:none;transition:top .16s ease;}
   .skip-link:focus{top:16px;outline:3px solid #fff;outline-offset:2px;}
   body{
-    font-family:"Wanted Sans Variable","Wanted Sans","Apple SD Gothic Neo",system-ui,sans-serif;
+    font-family:"Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;
     /* 초기 진입에서 사용하지 않는 1.5MB 배경 이미지는 불러오지 않습니다.
        체험 시작 화면은 서비스 콘솔의 웜화이트 표면만으로 즉시 표시됩니다. */
     background:#F8F6F1;
@@ -378,13 +379,13 @@
     <div class="gate-content">
     <p class="gate-kicker">TOUCH · LISTEN · DISCOVER</p>
     <p class="gate-doc" id="gateDoc" hidden></p>
-    <h1 id="gateTitle">불러오는 중이에요</h1>
-    <p class="gate-lede" id="gateLede" hidden></p>
+    <h1 id="gateTitle">손끝으로, 닷패드를 만나볼까요?</h1>
+    <p class="gate-lede" id="gateLede">체험 자료를 준비하고 있어요. 준비가 끝나면 바로 시작할 수 있어요.</p>
     <div class="gate-chips" id="gateChips" hidden>
       <span class="chip"><b id="chipStories">0</b><span id="storiesSuffix">개 이야기</span></span>
       <span class="chip"><b id="chipQuestions">0</b><span id="questionsSuffix">개 질문</span></span>
     </div>
-    <p id="gateText" role="status" aria-live="polite">닷패드 소개 자료를 준비하고 있어요.</p>
+    <p id="gateText" role="status" aria-live="polite">체험 자료를 준비하고 있어요.</p>
     <div class="gate-proof" id="gateProof"><i aria-hidden="true"></i><span>닷패드가 손끝의 움직임을 배움으로 바꿔요</span></div>
     <div id="gateAction" hidden>
       <p style="margin-bottom:14px">브라우저가 파일을 직접 열지 못하게 막고 있어요. 폴더에서 <code>npx serve .</code> 를 실행하고 다시 열거나,
@@ -392,7 +393,7 @@
       <label class="btn btn-ghost" for="filePick" id="filePickLabel">학습 자료 선택하기</label>
       <input class="sr" type="file" id="filePick" accept=".dtms,.dtma,.dtm,.json,application/json,audio/*" multiple>
     </div>
-    <button class="btn btn-accent btn-go" id="startBtn" hidden>
+    <button class="btn btn-accent btn-go" id="startBtn" disabled aria-describedby="gateText">
       <span id="startLabel">첫 촉각 여행 시작하기</span>
       <svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6l-6 6"/></svg>
     </button>
@@ -1241,7 +1242,7 @@
       $('chipQuestions').textContent=qCount;
       $('gateChips').hidden=false;
       $('gateText').setAttribute('role','status'); $('gateText').textContent=''; $('gateText').hidden=true;
-      $('gateProof').hidden=false; $('gateAction').hidden=true; $('startBtn').hidden=false; $('startBtn').focus();
+      $('gateProof').hidden=false; $('gateAction').hidden=true; $('startBtn').hidden=false; $('startBtn').disabled=false; $('startBtn').focus();
       console.log('[DOT BUDDY] 페이지',pages.length,'· interaction',merged,
         '· 점자 최대 줄',Math.max.apply(null,pages.map(p=>p.brlPages.length)),
         resolved?('· dtm 자산 '+resolved.dtmResolved+'개 매칭, 누락 '+JSON.stringify(resolved.dtmMissing)+' · 오디오 '+resolved.audioResolved+'개'):'');
@@ -1263,6 +1264,13 @@
   }
   $('startBtn').addEventListener('click',start);
 
+  function fetchWithTimeout(url,ms=8000){
+    const controller=new AbortController(), timer=setTimeout(()=>controller.abort(),ms);
+    return fetch(url,{signal:controller.signal,cache:'force-cache'}).then(response=>{
+      if(!response.ok) throw new Error('HTTP '+response.status); return response;
+    }).finally(()=>clearTimeout(timer));
+  }
+
   if(location.protocol==='file:'){
     // file://로 직접 열면 fetch·이미지 상대경로가 전부 막힙니다(마스코트 이미지가
     // 깨져 보이는 것도 이 때문). fetch를 시도조차 하지 않고 바로 정확한 원인을 안내합니다.
@@ -1271,10 +1279,12 @@
       '지금 당장 확인만 하고 싶다면 아래에서 파일을 직접 선택해도 돼요(이 경우 마스코트 이미지는 계속 안 보일 수 있어요).');
   } else {
     Promise.all([
-      fetch(SRC).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}),
-      fetch(IACT_SRC).then(r=>r.ok?r.json():null).catch(()=>null)
+      fetchWithTimeout(SRC).then(r=>r.json()),
+      fetchWithTimeout(IACT_SRC).then(r=>r.json()).catch(()=>null)
     ]).then(([d,s])=>ready(d,s))
-     .catch(()=>fail('자료를 열 수 없어요','브라우저가 로컬 파일 읽기를 막고 있어요. 아래 "다른 자료 불러오기"로 직접 선택해 주세요.'));
+     .catch(err=>fail('자료를 열 수 없어요',err.name==='AbortError'
+       ? '자료 연결이 오래 걸리고 있어요. 잠시 후 새로고침하거나, 아래에서 자료를 직접 선택해 주세요.'
+       : '체험 자료를 연결하지 못했어요. 새로고침하거나, 아래 "다른 자료 불러오기"로 직접 선택해 주세요.'));
   }
 
   // 여러 파일(.dtms/.dtma 본문 + .dtm 자산 + 오디오)을 한 번에 받아 분류합니다.
