@@ -81,5 +81,5 @@
   });
   observer.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['hidden']});
   setInterval(update,1000);
-  window.DotBuddySession = { getEvents:()=>state.events.slice(), export:()=>JSON.stringify(state.events) };
+  window.DotBuddySession = { getEvents:()=>state.events.slice(), export:()=>JSON.stringify(state.events), track:emit };
 })();
