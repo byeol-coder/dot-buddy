@@ -55,9 +55,9 @@
     const summary = { exportedAt:new Date().toISOString(), durationSeconds:Math.round((Date.now()-state.startedAt)/1000), slidesViewed:state.seen.size, replays:state.replays, dotpad:padText(), events:state.events };
     const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(summary,null,2)],{type:'application/json'})); a.download='dot-buddy-session-summary.json'; a.click(); URL.revokeObjectURL(a.href); emit('summary_exported');
   });
-  $('serviceHelp').addEventListener('click',()=> $('serviceDialog').showModal());
+  $('serviceHelp').addEventListener('click',()=>{ if(!$('serviceDialog').open) $('serviceDialog').showModal(); });
   const leadDialog=$('leadDialog'), leadForm=$('leadForm'), leadResult=$('leadResult');
-  $('openLead').addEventListener('click',()=>{ leadDialog.showModal(); emit('lead_nudge_opened',{placement:'header'}); });
+  $('openLead').addEventListener('click',()=>{ if(!leadDialog.open) leadDialog.showModal(); emit('lead_nudge_opened',{placement:'header'}); });
   $('leadClose').addEventListener('click',()=>leadDialog.close());
   leadForm.addEventListener('submit',async ev=>{
     ev.preventDefault();

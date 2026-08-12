@@ -343,8 +343,8 @@
     <span class="presence-dot" aria-hidden="true"></span>
     <span id="serviceStatus">체험 준비 중</span>
   </div>
-  <button class="service-lead" id="openLead" type="button">구매·파트너 안내</button>
-  <button class="service-help" id="serviceHelp" type="button">운영 안내</button>
+  <button class="service-lead" id="openLead" type="button" onclick="var d=document.getElementById('leadDialog');if(d&&!d.open)d.showModal()">구매·파트너 안내</button>
+  <button class="service-help" id="serviceHelp" type="button" onclick="var d=document.getElementById('serviceDialog');if(d&&!d.open)d.showModal()">운영 안내</button>
 </header>
 <div class="shell">
 
@@ -393,7 +393,7 @@
       <label class="btn btn-ghost" for="filePick" id="filePickLabel">학습 자료 선택하기</label>
       <input class="sr" type="file" id="filePick" accept=".dtms,.dtma,.dtm,.json,application/json,audio/*" multiple>
     </div>
-    <button class="btn btn-accent btn-go" id="startBtn" disabled aria-describedby="gateText">
+    <button class="btn btn-accent btn-go" id="startBtn" aria-describedby="gateText">
       <span id="startLabel">첫 촉각 여행 시작하기</span>
       <svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6l-6 6"/></svg>
     </button>
@@ -582,7 +582,7 @@
   const SRC=params.get('src')||'./content/01_intro.dtms';
   const IACT_SRC=params.get('iact')||SRC.replace(/\.dtms$/i,'.iact.json');
 
-  let doc=null,pages=[],stickerDefs={},idx=0,brlPage=0;
+  let doc=null,pages=[],stickerDefs={},idx=0,brlPage=0,queuedStart=false;
   // .dtma 압축 자료를 실제로 불러올 때만 96KB JSZip을 가져옵니다.
   // 첫 체험 화면은 이 라이브러리 없이 바로 준비됩니다.
   let jsZipLoading=null;
@@ -1242,7 +1242,9 @@
       $('chipQuestions').textContent=qCount;
       $('gateChips').hidden=false;
       $('gateText').setAttribute('role','status'); $('gateText').textContent=''; $('gateText').hidden=true;
-      $('gateProof').hidden=false; $('gateAction').hidden=true; $('startBtn').hidden=false; $('startBtn').disabled=false; $('startBtn').focus();
+      $('gateProof').hidden=false; $('gateAction').hidden=true; $('startBtn').hidden=false; $('startBtn').disabled=false;
+      if(queuedStart){ queuedStart=false; start(); }
+      else $('startBtn').focus();
       console.log('[DOT BUDDY] 페이지',pages.length,'· interaction',merged,
         '· 점자 최대 줄',Math.max.apply(null,pages.map(p=>p.brlPages.length)),
         resolved?('· dtm 자산 '+resolved.dtmResolved+'개 매칭, 누락 '+JSON.stringify(resolved.dtmMissing)+' · 오디오 '+resolved.audioResolved+'개'):'');
@@ -1256,6 +1258,14 @@
     $('gateAction').hidden=false; $('startBtn').hidden=true;
   }
   function start(){
+    if(!pages.length){
+      queuedStart=true;
+      $('gateText').hidden=false;
+      $('gateText').textContent='체험 자료를 준비하는 중이에요. 준비되는 즉시 시작할게요.';
+      $('startBtn').setAttribute('aria-busy','true');
+      $('startLabel').textContent='체험 자료 준비 중';
+      return;
+    }
     started=true; $('gate').hidden=true; $('main').hidden=false; $('scoreBox').hidden=false; $('skipLink').hidden=false;
     $('main').focus();
     session={startedAt:Date.now(), answered:0, firstTry:0};
