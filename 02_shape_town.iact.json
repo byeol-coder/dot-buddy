@@ -1,0 +1,84 @@
+{
+  "for": "02_shape_town.dtms",
+  "version": "0.1",
+  "note": "01_intro.dtms와 같은 사이드카 오버레이 방식. 신규 레슨(유닛 1 · 모양 마을).",
+  "illustrationPages": [2, 3, 4, 5, 6, 7],
+  "defaults": { "yesKey": "F1", "noKey": "F2", "advanceKey": "F4" },
+  "pages": {
+    "1": {
+      "type": "explore",
+      "promptChild": "다 들었으면 네 번째 동그라미 버튼을 눌러줘!",
+      "parentCoach": "새 마을에 왔다는 설렘을 함께 나눠주세요. 아직 화면엔 그림이 없고 방금 들은 말이 점자로 나오고 있어요."
+    },
+    "2": {
+      "type": "yes-no",
+      "prompt": "뾰족한 꼭짓점 다섯 개가 만져지나요?",
+      "promptChild": "뾰족한 데를 다섯 개 세었으면 첫 번째 버튼, 아직이면 두 번째 버튼!",
+      "onYes": { "say": "정확해! 별은 뾰족한 꼭짓점이 다섯 개야.", "reward": { "sparkle": 15, "sticker": "star" } },
+      "onNo": { "say": "가운데 뾰족한 위쪽부터 시계 방향으로 하나씩 짚어봐.", "retry": true, "maxRetry": 2, "hintAfter1": "위, 오른쪽 위, 오른쪽 아래, 왼쪽 아래, 왼쪽 위 — 이렇게 다섯 곳이야.", "revealAfterMax": true },
+      "parentCoach": "별의 위쪽 뾰족한 점부터 시작해 시계 방향으로 손가락을 옮기며 함께 세어주세요."
+    },
+    "3": {
+      "type": "yes-no",
+      "prompt": "위에 볼록한 산 두 개, 아래로 뾰족한 게 만져지나요?",
+      "promptChild": "그렇게 느껴지면 첫 번째 버튼, 아니면 두 번째 버튼!",
+      "onYes": { "say": "맞아! 그게 하트 모양이야. 별이랑 느낌이 완전히 다르지?", "reward": { "sparkle": 15, "sticker": "heart" } },
+      "onNo": { "say": "위쪽 가운데를 만져봐. 옴폭 들어간 곳이 있고 양옆으로 봉긋 솟아있어.", "retry": true, "maxRetry": 2, "hintAfter1": "손가락을 위에서 아래로 쭉 내려보면 점점 좁아지다가 뾰족하게 만나.", "revealAfterMax": true },
+      "parentCoach": "하트 윗부분 가운데의 옴폭 들어간 골을 먼저 찾게 해주세요. 그다음 아래로 쓸어내리며 뾰족해지는 걸 느끼게 하면 좋아요."
+    },
+    "4": {
+      "type": "yes-no",
+      "prompt": "네모를 살짝 기울인 것 같은 모양이 만져지나요?",
+      "promptChild": "그렇게 느껴지면 첫 번째 버튼, 잘 모르겠으면 두 번째 버튼!",
+      "onYes": { "say": "정답이야! 그게 마름모야. 위, 아래, 양옆에 뾰족한 데가 하나씩 있어.", "reward": { "sparkle": 15, "sticker": "diamond" } },
+      "onNo": { "say": "가운데에서 위쪽으로 손가락을 올려봐. 뾰족한 꼭짓점이 만져질 거야.", "retry": true, "maxRetry": 2, "hintAfter1": "네모는 뾰족한 데가 다 옆을 보는데, 마름모는 위아래양옆을 봐.", "revealAfterMax": true },
+      "parentCoach": "이미 배운 네모와 나란히 비교해주면 좋아요. '뾰족한 곳이 어느 쪽을 향하는지'가 마름모와 네모의 차이입니다."
+    },
+    "5": {
+      "type": "choice",
+      "prompt": "왼쪽 별과 오른쪽 별 중 어느 쪽이 더 클까?",
+      "promptChild": "왼쪽이 더 크면 첫 번째 버튼, 오른쪽이 더 크면 두 번째 버튼을 눌러줘!",
+      "choices": [
+        { "key": "F1", "label": "왼쪽 별", "correct": true },
+        { "key": "F2", "label": "오른쪽 별", "correct": false }
+      ],
+      "onCorrect": { "say": "맞아! 왼쪽 별이 훨씬 크지? 같은 별인데 크기만 다른 거야.", "reward": { "sparkle": 15 } },
+      "onWrong": { "say": "가운데 선을 짚고, 양쪽으로 손을 뻗어서 어디까지 별이 있는지 비교해봐.", "retry": true, "maxRetry": 2, "hintAfter1": "왼쪽 별은 손바닥만큼, 오른쪽 별은 손가락 두 마디만큼이야.", "revealAfterMax": true },
+      "parentCoach": "양손을 각각 왼쪽·오른쪽에 올려 동시에 비교하게 해주면 크기 차이를 훨씬 빨리 느낍니다."
+    },
+    "6": {
+      "type": "quadrant-choice",
+      "prompt": "하트는 어디에 있을까?",
+      "promptChild": "네 개의 방 중에서 하트가 있는 방을 찾아줘! 방 번호랑 같은 버튼을 누르면 돼.",
+      "choices": [
+        { "key": "F1", "label": "왼쪽 위 방", "correct": false },
+        { "key": "F2", "label": "오른쪽 위 방", "correct": false },
+        { "key": "F3", "label": "왼쪽 아래 방", "correct": false },
+        { "key": "F4", "label": "오른쪽 아래 방", "correct": true }
+      ],
+      "onCorrect": { "say": "정답이야! 오른쪽 아래 방에 하트가 있었어. 나머지는 전부 별이었지?", "reward": { "sparkle": 20 } },
+      "onWrong": { "say": "다시 만져볼까? 뾰족한 꼭짓점이 다섯 개면 별, 봉우리 두 개에 아래가 뾰족하면 하트야.", "retry": true, "maxRetry": 2, "hintAfter1": "위쪽 두 방부터 순서대로 만져보고, 그다음 아래쪽 두 방을 만져봐.", "revealAfterMax": true },
+      "parentCoach": "가운데 십자선에 손가락을 먼저 대게 해주세요. 이미 배운 '뾰족한 곳 개수 세기'를 그대로 활용하는 문제예요."
+    },
+    "7": {
+      "type": "quadrant-choice",
+      "prompt": "마름모는 어디에 있을까?",
+      "promptChild": "이번엔 마름모를 찾아줘!",
+      "choices": [
+        { "key": "F1", "label": "왼쪽 위 방", "correct": true },
+        { "key": "F2", "label": "오른쪽 위 방", "correct": false },
+        { "key": "F3", "label": "왼쪽 아래 방", "correct": false },
+        { "key": "F4", "label": "오른쪽 아래 방", "correct": false }
+      ],
+      "onCorrect": { "say": "정답! 왼쪽 위 방이 마름모였어. 오늘 배운 모양을 다 찾아냈네!", "reward": { "sparkle": 20, "sticker": "diamond" } },
+      "onWrong": { "say": "다시 만져보자. 위아래양옆에 뾰족한 게 하나씩 있는 방을 찾아봐.", "retry": true, "maxRetry": 2, "hintAfter1": "나머지 세 방은 전부 하트야. 하트는 위에 봉우리가 두 개지.", "revealAfterMax": true },
+      "parentCoach": "'봉우리가 두 개인가, 뾰족한 점이 하나인가'로 비교하게 해주세요."
+    },
+    "8": { "type": "none", "parentCoach": "오늘 배운 별·하트·마름모를 손으로 다시 짚어보며 이름을 말해보게 해주세요. 완료 리포트에서 모은 스티커를 함께 확인하면 좋아요." }
+  },
+  "stickers": {
+    "star":    { "name": "별",    "page": 2 },
+    "heart":   { "name": "하트",  "page": 3 },
+    "diamond": { "name": "마름모", "page": 4 }
+  }
+}

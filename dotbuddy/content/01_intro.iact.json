@@ -1,0 +1,491 @@
+{
+  "for": "01_intro.dtms",
+  "version": "0.1",
+  "note": "DTMS 원본을 수정하지 않는 사이드카 오버레이. page 번호로 병합됩니다. 스펙이 공식 채택되면 items[].interaction 으로 인라인 이동 가능(플레이어는 양쪽 모두 지원).",
+  "defaults": {
+    "yesKey": "F1",
+    "noKey": "F2",
+    "advanceKey": "F4"
+  },
+  "pages": {
+    "1": {
+      "type": "explore",
+      "promptChild": "다음 이야기를 들으려면 네 번째 길쭉한 동그라미 버튼을 눌러줘!",
+      "parentCoach": "닷패드 아래쪽 가운데에 길쭉한 동그라미 버튼 네 개가 있어요. 아이 손을 그쪽으로 안내해 주세요."
+    },
+    "2": {
+      "type": "yes-no",
+      "prompt": "가장 먼저 넓은 네모판이 만져지지?",
+      "promptChild": "넓은 네모판이 만져지면 첫 번째 동그라미 버튼, 아직 못 찾았으면 두 번째 버튼을 눌러줘!",
+      "onYes": {
+        "say": "그렇지! 그게 바로 여러 줄 점자 칸이야. 내 얼굴에서 제일 넓은 곳이지.",
+        "reward": {
+          "sparkle": 5
+        }
+      },
+      "onNo": {
+        "say": "괜찮아. 닷패드 맨 위쪽을 손바닥으로 쓸어봐. 넓고 오돌토돌한 네모판이 있어.",
+        "retry": true
+      },
+      "parentCoach": "여기서 말하는 '네모'는 화면 속 그림이 아니라 실제 닷패드 기기 윗면이에요. 아이 손바닥을 기기 위에 올려 쓸어보게 해주세요. 화면은 지금 하는 말을 점자로 계속 보여주고 있을 뿐이에요."
+    },
+    "3": {
+      "type": "explore",
+      "promptChild": "다 만져봤으면 네 번째 동그라미 버튼을 눌러줘!",
+      "parentCoach": "아이 손을 판 왼쪽 위 모서리에 놓고, 위에서 아래로 훑으면서 오른쪽 끝까지 손을 옮겨가게 해주세요. 얼마나 넓은지 스스로 느끼는 게 핵심이에요."
+    },
+    "4": {
+      "type": "explore",
+      "promptChild": "내가 동그라미를 그리는 걸 보려면 네 번째 동그라미 버튼을 눌러줘!"
+    },
+    "5": {
+      "type": "yes-no",
+      "prompt": "동그라미가 잘 만져져?",
+      "promptChild": "동그라미가 만져지면 첫 번째 버튼, 잘 모르겠으면 두 번째 버튼!",
+      "onYes": {
+        "say": "고마워! 동그라미는 이렇게 둥글둥글 이어져 있어. 시작도 끝도 없지.",
+        "reward": {
+          "sparkle": 10,
+          "sticker": "circle"
+        }
+      },
+      "onNo": {
+        "say": "손끝을 가운데에 대고 바깥쪽으로 천천히 밀어봐. 둥근 선이 만져질 거야.",
+        "retry": true
+      },
+      "parentCoach": "손끝을 화면 가운데에서 바깥으로 밀어 원의 테두리를 찾게 해주세요."
+    },
+    "6": {
+      "type": "yes-no",
+      "prompt": "뾰족한 세 개의 모서리가 잘 만져지니?",
+      "promptChild": "뾰족한 데가 세 개 만져지면 첫 번째 버튼, 아니면 두 번째 버튼!",
+      "onYes": {
+        "say": "맞아! 뾰족한 데가 세 개라서 세모야. 동그라미랑은 느낌이 완전히 다르지?",
+        "reward": {
+          "sparkle": 10,
+          "sticker": "triangle"
+        }
+      },
+      "onNo": {
+        "say": "맨 위에 뾰족한 데가 하나, 아래 양쪽 끝에 두 개 있어. 천천히 따라가 봐.",
+        "retry": true
+      },
+      "parentCoach": "위 꼭짓점부터 아래 양쪽 끝까지 손가락으로 선을 따라가게 해주세요. '뾰족한 데'를 세어보는 게 핵심입니다."
+    },
+    "7": {
+      "type": "yes-no",
+      "prompt": "속이 채워진 세모는 어떤 느낌이야?",
+      "promptChild": "아까 세모랑 다르게 느껴지면 첫 번째 버튼, 비슷하면 두 번째 버튼!",
+      "onYes": {
+        "say": "그렇지! 아까는 선만 있었는데 지금은 안이 꽉 찼어. 이걸 채워진 그림이라고 해.",
+        "reward": {
+          "sparkle": 10,
+          "sticker": "triangle_filled"
+        }
+      },
+      "onNo": {
+        "say": "가운데를 만져봐. 아까는 아무것도 없었는데 지금은 점이 꽉 차 있지?",
+        "retry": true
+      },
+      "parentCoach": "6페이지의 빈 세모와 지금의 채워진 세모를 비교하게 해주세요. '윤곽'과 '채움'의 차이가 이 자료의 핵심 개념입니다."
+    },
+    "8": {
+      "type": "choice",
+      "prompt": "가운데 선 왼쪽에는 어떤 모양이 있을까?",
+      "promptChild": "왼쪽에 있는 모양이 뭘까? 동그라미면 첫 번째, 세모면 두 번째, 네모면 세 번째 버튼을 눌러줘!",
+      "choices": [
+        {
+          "key": "F1",
+          "label": "동그라미",
+          "correct": true
+        },
+        {
+          "key": "F2",
+          "label": "세모",
+          "correct": false
+        },
+        {
+          "key": "F3",
+          "label": "네모",
+          "correct": false
+        }
+      ],
+      "onCorrect": {
+        "say": "정답이야! 왼쪽은 통통한 동그라미, 오른쪽은 뾰족한 세모였어. 나는 한 번에 두 개도 그릴 수 있어!",
+        "reward": {
+          "sparkle": 15
+        }
+      },
+      "onWrong": {
+        "say": "다시 만져볼까? 가운데 세로선을 먼저 찾고, 그 왼쪽만 만져봐.",
+        "retry": true,
+        "maxRetry": 2,
+        "hintAfter1": "왼쪽 모양은 뾰족한 데가 하나도 없어. 어디를 만져도 둥글둥글해.",
+        "revealAfterMax": true
+      },
+      "parentCoach": "가운데 세로 구분선에 손가락을 먼저 대게 해주세요. 그 선을 기준으로 왼쪽/오른쪽을 나눠 만지는 게 요령입니다."
+    },
+    "9": {
+      "type": "explore",
+      "promptChild": "여러 줄 점자 칸 아래쪽을 만져보고, 다 됐으면 네 번째 동그라미 버튼!"
+    },
+    "10": {
+      "type": "yes-no",
+      "prompt": "왼쪽 오른쪽 끝 버튼이 세모 모양이지?",
+      "promptChild": "양쪽 끝 버튼이 세모 모양이면 첫 번째 버튼, 아니면 두 번째 버튼!",
+      "onYes": {
+        "say": "맞아! 이게 세모 버튼이야. 나중에 점자를 넘길 때 쓸 거야.",
+        "reward": {
+          "sparkle": 5
+        }
+      },
+      "onNo": {
+        "say": "버튼 줄에서 제일 왼쪽 끝과 제일 오른쪽 끝을 만져봐. 뾰족한 세모 모양이야.",
+        "retry": true
+      },
+      "parentCoach": "버튼 줄의 양쪽 맨 끝입니다. 가운데 동그라미 버튼들과 모양이 다르다는 걸 손으로 비교하게 해주세요."
+    },
+    "11": {
+      "type": "count",
+      "prompt": "길쭉한 동그라미 버튼은 몇 개 있을까?",
+      "promptChild": "몇 개인 것 같아? 개수만큼 번째에 있는 버튼을 눌러줘! 세 개 같으면 세 번째 버튼, 네 개 같으면 네 번째 버튼!",
+      "answer": 4,
+      "onCorrect": {
+        "say": "딩동댕! 길쭉한 동그라미 버튼은 네 개 있어. 잘 세었네!",
+        "reward": {
+          "sparkle": 15
+        }
+      },
+      "onWrong": {
+        "say": "한 번 더 세어볼까? 왼쪽부터 오른쪽으로 하나씩 짚어봐.",
+        "retry": true,
+        "maxRetry": 2,
+        "hintAfter1": "세모 버튼은 빼고, 가운데 길쭉한 것만 세는 거야.",
+        "revealAfterMax": true
+      },
+      "parentCoach": "아이 손가락을 왼쪽부터 오른쪽으로 하나씩 짚어가며 소리 내어 세게 해주세요. 세모 버튼은 제외입니다."
+    },
+    "12": {
+      "type": "explore",
+      "promptChild": "다음으로 넘어가려면 네 번째 동그라미 버튼!"
+    },
+    "13": {
+      "type": "button-press",
+      "prompt": "네 번째 동그라미 버튼을 눌러볼래?",
+      "promptChild": "왼쪽에서 네 번째, 그러니까 제일 오른쪽에 있는 길쭉한 동그라미 버튼을 눌러줘!",
+      "expect": "F4",
+      "onCorrect": {
+        "say": "잘했어! 방금 그 버튼이 다음 페이지로 넘어가는 버튼이야. 앞으로 계속 쓸 거야.",
+        "reward": {
+          "sparkle": 10
+        }
+      },
+      "onWrong": {
+        "say": "그 버튼 말고, 길쭉한 동그라미 버튼 중에서 제일 오른쪽에 있는 걸 눌러줘.",
+        "retry": true,
+        "maxRetry": 99
+      },
+      "parentCoach": "실제로 눌러봐야 넘어갑니다. 손을 버튼 줄 오른쪽 끝 근처로 안내해 주세요."
+    },
+    "14": {
+      "type": "explore",
+      "promptChild": "기능 버튼 아래쪽을 만져보고, 다 됐으면 네 번째 동그라미 버튼!"
+    },
+    "15": {
+      "type": "yes-no",
+      "prompt": "길쭉한 네모판이 만져지지?",
+      "promptChild": "길쭉한 네모판이 만져지면 첫 번째 버튼, 아직이면 두 번째 버튼!",
+      "onYes": {
+        "say": "그게 한 줄 점자 칸이야. 내가 지금 하는 말이 여기에 점자로 나오고 있어.",
+        "reward": {
+          "sparkle": 5
+        }
+      },
+      "onNo": {
+        "say": "버튼 줄보다 더 아래쪽이야. 가로로 길쭉한 네모판이 있어.",
+        "retry": true
+      },
+      "parentCoach": "버튼 줄 아래의 가로로 긴 영역입니다. 지금 이 문장이 실제로 점자로 출력되고 있다고 알려주세요."
+    },
+    "16": {
+      "type": "button-press",
+      "prompt": "가장 오른쪽 세모 버튼을 눌러볼래?",
+      "promptChild": "제일 오른쪽 끝에 있는 세모 버튼을 눌러줘!",
+      "expect": "PanningRight",
+      "onCorrect": {
+        "say": "잘했어! 세모 버튼을 누르면 한 줄 점자 칸의 다음 줄이 나와.",
+        "reward": {
+          "sparkle": 10
+        }
+      },
+      "onWrong": {
+        "say": "동그라미 버튼 말고, 제일 오른쪽 끝에 있는 뾰족한 세모 버튼이야.",
+        "retry": true,
+        "maxRetry": 99
+      },
+      "parentCoach": "버튼 줄의 오른쪽 맨 끝입니다. 이 동작이 앞으로 점자를 읽을 때 계속 쓰입니다."
+    },
+    "17": {
+      "type": "explore",
+      "promptChild": "다음으로 넘어가려면 네 번째 동그라미 버튼!"
+    },
+    "18": {
+      "type": "yes-no",
+      "prompt": "게임 한번 해볼까?",
+      "promptChild": "좋으면 첫 번째 버튼, 조금 더 만져보고 싶으면 두 번째 버튼!",
+      "onYes": {
+        "say": "좋아! 재미있는 걸 준비했어.",
+        "reward": {
+          "sparkle": 5
+        }
+      },
+      "onNo": {
+        "say": "천천히 해도 괜찮아. 더 만져보고 준비되면 알려줘.",
+        "retry": true
+      }
+    },
+    "19": {
+      "type": "button-press",
+      "prompt": "오른쪽 제일 끝 길쭉한 동그라미 버튼을 눌러볼까?",
+      "promptChild": "제일 오른쪽에 있는 길쭉한 동그라미 버튼을 눌러서 게임을 시작하자!",
+      "expect": "F4",
+      "onCorrect": {
+        "say": "시작! 잘 만져보고 답을 찾아봐.",
+        "reward": {
+          "sparkle": 5
+        }
+      },
+      "onWrong": {
+        "say": "길쭉한 동그라미 버튼 중에서 제일 오른쪽에 있는 걸 눌러줘.",
+        "retry": true,
+        "maxRetry": 99
+      }
+    },
+    "20": {
+      "type": "quadrant-choice",
+      "prompt": "이 중에 세모는 어디에 있을까?",
+      "promptChild": "네 개의 방 중에서 세모가 있는 방을 찾아줘! 왼쪽 위는 첫 번째, 오른쪽 위는 두 번째, 왼쪽 아래는 세 번째, 오른쪽 아래는 네 번째 버튼이야!",
+      "choices": [
+        {
+          "key": "F1",
+          "label": "왼쪽 위 방",
+          "correct": false
+        },
+        {
+          "key": "F2",
+          "label": "오른쪽 위 방",
+          "correct": false
+        },
+        {
+          "key": "F3",
+          "label": "왼쪽 아래 방",
+          "correct": false
+        },
+        {
+          "key": "F4",
+          "label": "오른쪽 아래 방",
+          "correct": true
+        }
+      ],
+      "onCorrect": {
+        "say": "정답이야! 오른쪽 아래 방에 세모가 있었어. 뾰족한 데가 세 개였지?",
+        "reward": {
+          "sparkle": 20
+        }
+      },
+      "onWrong": {
+        "say": "아깝다! 다시 한 번 만져볼까? 뾰족한 모서리가 있는 방을 찾아봐.",
+        "retry": true,
+        "maxRetry": 2,
+        "hintAfter1": "가운데 십자 선을 기준으로 아래쪽 두 방부터 만져봐.",
+        "revealAfterMax": true
+      },
+      "parentCoach": "아이 손가락을 가운데 십자 선에 먼저 대게 해주세요. 네 방을 순서대로 짚어주면 좋습니다. 정답은 알려주지 마세요."
+    },
+    "21": {
+      "type": "quadrant-choice",
+      "prompt": "네모는 어디에 있을까?",
+      "promptChild": "이번엔 네모를 찾아줘! 방 번호랑 같은 버튼을 눌러줘!",
+      "choices": [
+        {
+          "key": "F1",
+          "label": "왼쪽 위 방",
+          "correct": false
+        },
+        {
+          "key": "F2",
+          "label": "오른쪽 위 방",
+          "correct": false
+        },
+        {
+          "key": "F3",
+          "label": "왼쪽 아래 방",
+          "correct": true
+        },
+        {
+          "key": "F4",
+          "label": "오른쪽 아래 방",
+          "correct": false
+        }
+      ],
+      "onCorrect": {
+        "say": "정답! 왼쪽 아래 방이 네모였어. 네모는 뾰족한 데가 네 개지.",
+        "reward": {
+          "sparkle": 20,
+          "sticker": "square"
+        }
+      },
+      "onWrong": {
+        "say": "아깝다! 다시 만져보자. 세모랑 네모는 뾰족한 데의 개수가 달라.",
+        "retry": true,
+        "maxRetry": 2,
+        "hintAfter1": "세 방은 위가 뾰족해. 위가 평평한 방을 찾아봐.",
+        "revealAfterMax": true
+      },
+      "parentCoach": "'위가 뾰족한가, 평평한가'를 비교 기준으로 알려주면 아이가 훨씬 빨리 찾습니다."
+    },
+    "22": {
+      "type": "quadrant-choice",
+      "prompt": "속이 채워진 세모는 어디에 있을까?",
+      "promptChild": "이번엔 속이 꽉 찬 그림이야! 세모가 있는 방의 버튼을 눌러줘!",
+      "choices": [
+        {
+          "key": "F1",
+          "label": "왼쪽 위 방",
+          "correct": true
+        },
+        {
+          "key": "F2",
+          "label": "오른쪽 위 방",
+          "correct": false
+        },
+        {
+          "key": "F3",
+          "label": "왼쪽 아래 방",
+          "correct": false
+        },
+        {
+          "key": "F4",
+          "label": "오른쪽 아래 방",
+          "correct": false
+        }
+      ],
+      "onCorrect": {
+        "say": "정답이야! 왼쪽 위 방이 세모였어. 채워져 있어도 위가 뾰족한 건 똑같지?",
+        "reward": {
+          "sparkle": 20
+        }
+      },
+      "onWrong": {
+        "say": "다시 만져볼까? 속이 꽉 차 있어도 바깥 모양은 그대로야.",
+        "retry": true,
+        "maxRetry": 2,
+        "hintAfter1": "위쪽을 만져봐. 한 방만 위가 좁고 아래가 넓어.",
+        "revealAfterMax": true
+      },
+      "parentCoach": "채워진 그림은 테두리가 아니라 '전체 덩어리의 모양'을 봐야 합니다. 위쪽 폭을 비교하게 해주세요."
+    },
+    "23": {
+      "type": "quadrant-choice",
+      "prompt": "속이 채워진 동그라미는 어디에 있을까?",
+      "promptChild": "마지막이야! 동그라미가 있는 방의 버튼을 눌러줘!",
+      "choices": [
+        {
+          "key": "F1",
+          "label": "왼쪽 위 방",
+          "correct": false
+        },
+        {
+          "key": "F2",
+          "label": "오른쪽 위 방",
+          "correct": false
+        },
+        {
+          "key": "F3",
+          "label": "왼쪽 아래 방",
+          "correct": true
+        },
+        {
+          "key": "F4",
+          "label": "오른쪽 아래 방",
+          "correct": false
+        }
+      ],
+      "onCorrect": {
+        "say": "정답! 왼쪽 아래 방이 동그라미였어. 네 문제 다 풀었네, 정말 잘했어!",
+        "reward": {
+          "sparkle": 25,
+          "sticker": "circle_filled"
+        }
+      },
+      "onWrong": {
+        "say": "다시 만져보자. 모서리가 하나도 없는 방을 찾아봐.",
+        "retry": true,
+        "maxRetry": 2,
+        "hintAfter1": "네모는 구석이 각져 있어. 구석이 둥근 방이 동그라미야.",
+        "revealAfterMax": true
+      },
+      "parentCoach": "'구석이 각졌는가, 둥근가'로 비교하게 해주세요. 채워진 도형 변별의 핵심 단서입니다."
+    },
+    "24": {
+      "type": "explore",
+      "promptChild": "다음으로 넘어가려면 네 번째 동그라미 버튼!"
+    },
+    "25": {
+      "type": "explore",
+      "promptChild": "다음으로 넘어가려면 네 번째 동그라미 버튼!"
+    },
+    "26": {
+      "type": "explore",
+      "promptChild": "다음으로 넘어가려면 네 번째 동그라미 버튼!"
+    },
+    "27": {
+      "type": "none",
+      "parentCoach": "여기서 아이에게 오늘 모은 스티커를 만져보게 해주세요. 성취를 손으로 확인하는 순간이 중요합니다."
+    }
+  },
+  "stickers": {
+    "circle": {
+      "name": "동그라미",
+      "page": 5
+    },
+    "triangle": {
+      "name": "세모",
+      "page": 6
+    },
+    "triangle_filled": {
+      "name": "채워진 세모",
+      "page": 7
+    },
+    "square": {
+      "name": "네모",
+      "page": 21,
+      "room": [
+        0,
+        29,
+        21,
+        39
+      ]
+    },
+    "circle_filled": {
+      "name": "채워진 동그라미",
+      "page": 23,
+      "room": [
+        0,
+        29,
+        21,
+        39
+      ]
+    }
+  },
+  "illustrationPages": [
+    5,
+    6,
+    7,
+    8,
+    20,
+    21,
+    22,
+    23
+  ]
+}

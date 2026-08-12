@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<title>닷친구 · 오늘의 여정</title>
+<style>
+  :root{
+    /* ── tw-app/Tactile Studio 실제 프로덕션 토큰(2026-08-12 i18n 핸드오프 코드에서
+       직접 확인) ── #FF4F00/#E04500/#FBF8F2/#1F1D1A/#5C574E/#ECE6DC/#FEF2E9/#C2410C는
+       ExportMenu.tsx·StudioDraftsModal.jsx·ImportDialog.tsx의 실제 var(--x, 기본값)
+       리터럴을 그대로 옮겼습니다. 폰트도 실제 코드의 'Noto Sans KR' 폴백을 반영.
+
+       ⚠️ 한 가지만 다르게 적용: --accent(#FF4F00)를 흰 글씨와 함께 쓰면 대비 3.30:1,
+       --accent-deep(#E04500)도 4.18:1로 둘 다 WCAG AA 본문 기준(4.5:1) 미달입니다
+       (직접 계산 확인). 그래서 텍스트가 얹히는 자리(버튼 라벨, 활성 pill)는
+       같은 색상군을 더 짙게 내린 --accent-ink(#C43D00, 흰 글씨 대비 5.23:1)를 쓰고,
+       --accent/--accent-deep은 아이콘·테두리·장식처럼 텍스트가 없는 자리에 그대로 씁니다. */
+    --page:#FBF8F2;
+    --page-2:#F3ECDD;
+    --card:#FFFFFF;
+    --ink:#1F1D1A;
+    --ink-soft:#5C574E;
+    --line:#ECE6DC;
+    --device:#EFE6D3;      /* 기기 케이스 — 실제 어시스티브 기기처럼 밝은 톤 */
+    --device-2:#E4D8BE;
+    --pin-on:#1F1D1A;      /* 올라온 핀 = 잉크(실물처럼 융기해 어두워 보임) */
+    --pin-off:#D9D3C6;
+    --accent:#FF4F00;      /* tw-app 실제 브랜드 액센트 — 텍스트 없는 장식용 */
+    --accent-deep:#E04500; /* tw-app 실제 hover/딥 톤 — 텍스트 없는 자리(테두리·글로우)만 */
+    --accent-ink:#C43D00;  /* 흰 글씨 얹는 자리 전용(AA 대비 확인, §신뢰성 요구사항과 동일 기준) */
+    --accent-dark:#A83400; /* 버튼 hover 시 accent-ink보다 한 단계 더 진하게 */
+    --accent-tint:#FFF1EA; /* tw-app 실제 틴트 배경 */
+    --danger:#C2410C;      /* tw-app 실제 danger 토큰 */
+    --danger-tint:#FEF2E9;
+    --ok:#1F6F43;          /* 정답 (tw-app 코드에 대응 토큰 없어 기존 값 유지) */
+    --r:14px;              /* tw-app 실제 반경 분포(8이 최빈값, 카드류는 최대 14) 반영 */
+    --r-sm:8px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;min-height:100%;}
+  body{
+    font-family:"Pretendard","Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;
+    background:
+      radial-gradient(120% 80% at 50% -10%, #FFFDF7 0%, var(--page) 45%, var(--page-2) 100%) fixed;
+    color:var(--ink); -webkit-font-smoothing:antialiased; line-height:1.5;
+    padding:22px 18px 44px;
+  }
+  .shell{max-width:840px;margin:0 auto;display:flex;flex-direction:column;gap:18px;}
+
+  /* ── 머리 ── */
+  .top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+  .brand{font-size:20px;font-weight:800;letter-spacing:-.03em;}
+  .brand span{color:var(--accent-ink);}
+  .eyebrow{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;font-weight:700;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);}
+  .spacer{flex:1 1 auto;}
+
+  /* 별가루 */
+  .score{display:flex;align-items:center;gap:9px;background:var(--card);border:1px solid var(--line);
+    border-radius:999px;padding:7px 16px 7px 12px;box-shadow:0 2px 8px -4px rgba(33,29,22,.2);}
+  .score b{font-family:ui-monospace,monospace;font-size:19px;font-weight:800;color:var(--accent-ink);}
+  .score small{font-size:12px;font-weight:700;color:var(--ink-soft);}
+  .score .sp{width:20px;height:20px;flex:0 0 auto;color:var(--accent);}
+
+  /* ── 진행: 핀이 하나씩 올라온다 ── */
+  .trail{display:flex;gap:5px;flex-wrap:wrap;align-items:center;}
+  .trail i{width:9px;height:9px;border-radius:50%;background:var(--line);transition:.25s ease;}
+  .trail i.on{background:var(--accent);}
+  .trail i.now{background:var(--accent);box-shadow:0 0 0 4px var(--accent-tint);transform:scale(1.35);}
+  .trail-cap{font-family:ui-monospace,monospace;font-size:12px;font-weight:700;color:var(--ink-soft);margin-left:6px;}
+
+  /* ── 시그니처: 손끝으로 만지는 그림은 결국 '격자 위에 올라온 점'입니다.
+     장식도 그 문법 그대로 씁니다 — 낙서가 아니라, 쉬고 있는 점들 사이에
+     하트 모양으로 몇 개만 올라와 있는 작은 촉각 그림 한 장. ── */
+  .gate-medallion{position:relative;width:200px;height:200px;margin:4px auto 20px;display:grid;place-items:center;}
+  .medallion-field,.medallion-heart{position:absolute;inset:0;width:100%;height:100%;}
+  .medallion-field circle{fill:var(--line);}
+  .medallion-heart circle{fill:var(--accent-ink);}
+  .gate-mascot{width:132px;height:auto;display:block;position:relative;z-index:1;
+    filter:drop-shadow(0 8px 16px rgba(31,29,26,.16));}
+
+  .gate-doc{font-family:ui-monospace,monospace;font-size:11px;font-weight:700;letter-spacing:.06em;
+    color:var(--ink-soft);margin:0 0 10px;opacity:.85;}
+  .gate-lede{font-size:15.5px;color:var(--ink-soft);font-weight:500;margin:10px auto 0;max-width:38ch;line-height:1.6;}
+  .gate-chips{display:flex;gap:8px;justify-content:center;margin:14px 0 4px;}
+  .chip{font-size:13px;font-weight:700;color:var(--ink-soft);background:var(--page-2);
+    border:1px solid var(--line);border-radius:999px;padding:5px 14px;}
+  .chip b{color:var(--ink);font-weight:800;}
+
+  /* ── 말풍선 ── */
+  .say{display:flex;gap:14px;align-items:flex-start;}
+  .avatar{width:64px;height:64px;flex:0 0 auto;border-radius:20px;background:linear-gradient(160deg,var(--device),var(--device-2));
+    border:1px solid var(--line);display:grid;place-items:center;box-shadow:0 8px 20px -10px rgba(33,29,22,.35);overflow:hidden;}
+  .avatar img{width:48px;height:48px;display:block;object-fit:contain;}
+  .bubble{position:relative;background:var(--card);border:1px solid var(--line);border-radius:6px 20px 20px 20px;
+    padding:16px 20px;box-shadow:0 4px 16px -10px rgba(33,29,22,.25);flex:1 1 auto;min-width:0;}
+  .who{font-size:11px;font-weight:800;letter-spacing:.1em;color:var(--accent-ink);text-transform:uppercase;
+    font-family:ui-monospace,monospace;margin-bottom:5px;display:flex;align-items:center;gap:7px;}
+  .speaking{display:inline-flex;align-items:center;gap:5px;color:var(--ink-soft);text-transform:none;letter-spacing:0;font-weight:700;}
+  .speaking::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent);}
+  @media (prefers-reduced-motion:no-preference){ .speaking::before{animation:blink 1s ease-in-out infinite;} }
+  @keyframes blink{0%,100%{opacity:.3}50%{opacity:1}}
+  .line{font-size:18px;font-weight:600;white-space:pre-wrap;margin:0;letter-spacing:-.01em;}
+
+  /* ── 히어로: 가상 닷패드 ──
+     실물 어시스티브 기기 톤(밝은 케이스) + dot-games-host 핀 프리뷰 색상 재사용 */
+  .device{background:linear-gradient(165deg,var(--device) 0%,var(--device-2) 100%);
+    border:1px solid var(--line);
+    border-radius:26px;padding:18px;box-shadow:0 20px 44px -28px rgba(33,29,22,.45), inset 0 1px 0 rgba(255,255,255,.6);}
+  .dev-label{font-family:ui-monospace,monospace;font-size:10px;font-weight:700;letter-spacing:.16em;
+    color:var(--ink-soft);text-transform:uppercase;margin-bottom:8px;display:flex;justify-content:space-between;}
+  .field{background:var(--page);border:1px solid var(--line);border-radius:14px;padding:10px;}
+  .field canvas{width:100%;display:block;}
+  .field.flash{animation:flash .5s ease;}
+  @keyframes flash{0%,100%{background:var(--page)}50%{background:var(--accent-tint)}}
+
+  /* 버튼 줄 — 세모2 + 길쭉한 동그라미4 (실물 배치) */
+  .keys{display:flex;align-items:center;justify-content:center;gap:10px;margin:14px 0 12px;}
+  .kbtn{background:#CBBFA0;border-radius:999px;height:26px;position:relative;
+    display:grid;place-items:center;transition:.2s ease;}
+  .kbtn.oval{width:58px;}
+  .kbtn.tri{width:30px;background:transparent;}
+  .kbtn.tri svg{width:22px;height:22px;}
+  .kbtn.tri svg path{fill:#8A7B5E;}
+  .kbtn small{font-family:ui-monospace,monospace;font-size:10px;font-weight:800;color:#4A4030;}
+  .kbtn.hot{background:var(--accent-ink);box-shadow:0 0 0 5px var(--accent-tint);}
+  .kbtn.hot small{color:#fff;}
+  .kbtn.tri.hot{background:transparent;}
+  .kbtn.tri.hot svg path{fill:var(--accent);}
+  @media (prefers-reduced-motion:no-preference){ .kbtn.hot{animation:pulse 1.4s ease-in-out infinite;} }
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 5px var(--accent-tint)}50%{box-shadow:0 0 0 10px rgba(196,61,0,.06)}}
+
+  /* 한 줄 점자 칸 */
+  .strip{background:var(--page);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;gap:7px;
+    justify-content:center;flex-wrap:nowrap;overflow:hidden;}
+  .cell{display:grid;grid-template-columns:repeat(2,5px);grid-auto-rows:5px;gap:3px;}
+  .cell i{width:5px;height:5px;border-radius:50%;background:var(--pin-off);}
+  .cell i.up{background:var(--pin-on);}
+  .dev-foot{display:flex;justify-content:space-between;align-items:center;margin-top:9px;
+    font-family:ui-monospace,monospace;font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--ink-soft);}
+
+  /* ── 코칭 ── */
+  .coach{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;
+    box-shadow:0 4px 16px -12px rgba(33,29,22,.25);}
+  .coach.ask{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-tint);}
+  .coach.ok{border-color:var(--ok);box-shadow:0 0 0 3px rgba(31,111,67,.12);}
+  .ctitle{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+    font-family:ui-monospace,monospace;color:var(--ink-soft);display:flex;align-items:center;gap:8px;margin-bottom:9px;position:relative;}
+  .doodle-burst{position:absolute;left:64px;top:-8px;width:46px;height:46px;fill:var(--accent);
+    opacity:0;pointer-events:none;}
+  .doodle-burst.fire{animation:burst-pop .65s ease-out;}
+  @keyframes burst-pop{0%{opacity:0;transform:scale(.25)}28%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.35)}}
+  .pill{font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px;background:var(--accent-tint);color:var(--accent-dark);
+    letter-spacing:0;text-transform:none;font-family:inherit;}
+  .pill.live{background:var(--accent-ink);color:#fff;}
+  .pill.done{background:var(--ok);color:#fff;}
+  .ctext{font-size:16px;font-weight:600;margin:0;}
+  .csub{font-size:14px;color:var(--ink-soft);font-weight:500;margin:9px 0 0;}
+  .nospoil{margin-top:12px;font-size:13px;font-weight:700;color:var(--accent-ink);}
+
+  /* ── 스티커 선반 ── */
+  .shelf{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;}
+  .stickers{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;}
+  .st{width:74px;text-align:center;}
+  .st .art{width:74px;height:74px;border-radius:18px;background:var(--page);border:1px dashed var(--line);
+    display:grid;place-items:center;transition:.25s ease;position:relative;overflow:visible;}
+  .st-burst{position:absolute;left:50%;top:50%;width:74px;height:74px;margin:-37px 0 0 -37px;}
+  .st canvas{width:52px;height:52px;display:block;opacity:.16;}
+  .st.got .art{background:linear-gradient(160deg,#FBEFDD,#F3D9B8);border:1px solid #E7C48C;
+    box-shadow:0 6px 14px -8px rgba(180,90,10,.4);}
+  .st.got canvas{opacity:1;}
+  .st b{display:block;font-size:11px;font-weight:700;margin-top:6px;color:var(--ink-soft);}
+  .st.got b{color:var(--ink);}
+  @media (prefers-reduced-motion:no-preference){ .st.pop .art{animation:pop .55s cubic-bezier(.2,1.5,.4,1);} }
+  @keyframes pop{0%{transform:scale(.5) rotate(-12deg)}100%{transform:scale(1) rotate(0)}}
+
+  /* ── 조작 ──
+     클래스명은 tw-app 실제 코드(ExportMenu/ImportDialog 등)의
+     `btn btn-accent` / `btn btn-ghost` 체계를 그대로 따릅니다.
+     .btn-go 는 이전 버전과의 호환을 위한 별칭으로 남겨둡니다. */
+  .bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  .btn{font:inherit;font-size:14px;font-weight:700;border-radius:var(--r-sm);border:1px solid var(--line);
+    background:var(--card);color:var(--ink);cursor:pointer;padding:0 15px;height:46px;min-width:46px;
+    display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:.15s ease;}
+  .btn:hover{background:var(--page-2);transform:translateY(-1px);}
+  .btn:focus-visible{outline:3px solid var(--accent-ink);outline-offset:2px;}
+  .btn:disabled{opacity:.4;cursor:default;transform:none;}
+  .btn-ghost{background:var(--card);color:var(--ink);border-color:var(--line);}
+  .btn-accent,.btn-go{background:var(--accent-ink);color:#fff;border-color:var(--accent-ink);}
+  .btn-accent:hover,.btn-go:hover{background:var(--accent-dark);}
+  .btn[data-on="1"]{background:var(--ok);border-color:var(--ok);color:#fff;}
+  .ti{width:19px;height:19px;flex:0 0 auto;display:block;}
+  .hint{font-size:13px;color:var(--ink-soft);font-weight:600;}
+  .hint kbd{font:inherit;font-size:11px;font-weight:800;background:#fff;border:1px solid var(--line);
+    border-bottom-width:2px;border-radius:6px;padding:1px 6px;color:var(--ink);}
+
+  /* ── 시작/오류 상태 ──
+     작은 카드를 넓은 페이지에 띄우지 않고, 패널 자체를 여정의 첫 화면으로 씁니다.
+     타이포그래피는 손글씨체 대신 굵고 확신에 찬 산세리프 한 벌로 정리했습니다. */
+  .gate{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:52px 32px 40px;text-align:center;
+    box-shadow:0 20px 44px -30px rgba(31,29,26,.35);}
+  .gate h1{font-size:30px;font-weight:800;letter-spacing:-.025em;line-height:1.25;margin:0;color:var(--ink);}
+  .gate p{font-size:15px;color:var(--ink-soft);font-weight:500;margin:0 auto 18px;max-width:44ch;}
+  .gate #gateText{margin-top:10px;}
+  .gate code{font-family:ui-monospace,monospace;font-size:13px;background:var(--accent-tint);border:1px solid var(--line);
+    border-radius:8px;padding:3px 8px;color:var(--accent-dark);font-weight:700;}
+  .gate .btn-accent{margin-top:8px;height:50px;padding:0 22px;font-size:15px;}
+  /* ── 첫 연결 놀이 ── */
+  .fc-overlay{position:fixed;inset:0;background:rgba(31,29,26,.5);z-index:50;
+    display:flex;align-items:center;justify-content:center;padding:20px;}
+  .fc-panel{background:var(--card);border-radius:var(--r);max-width:420px;width:100%;
+    padding:28px 26px 24px;text-align:center;box-shadow:0 24px 60px -20px rgba(31,29,26,.5);}
+  .fc-panel h2{font-size:22px;font-weight:800;letter-spacing:-.02em;margin:0 0 6px;color:var(--ink);}
+  .fc-sub{font-size:14px;color:var(--ink-soft);font-weight:500;margin:0 0 16px;line-height:1.55;}
+  .fc-field{background:var(--page);border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:14px;}
+  .fc-field canvas{width:100%;display:block;}
+  .fc-shapes{display:flex;gap:8px;justify-content:center;margin-bottom:10px;}
+  .fc-shape{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;
+    font:inherit;font-size:12.5px;font-weight:700;color:var(--ink-soft);
+    background:var(--page);border:1.5px solid var(--line);border-radius:12px;
+    padding:12px 6px;cursor:pointer;transition:.15s ease;}
+  .fc-shape svg{width:24px;height:24px;}
+  .fc-shape:hover{border-color:var(--accent-ink);color:var(--ink);}
+  .fc-shape[aria-pressed="true"]{background:var(--accent-tint);border-color:var(--accent-ink);color:var(--accent-ink);}
+  .fc-hint{font-size:13px;color:var(--ink-soft);font-weight:600;min-height:1.4em;margin:0 0 16px;}
+  #fcDone{width:100%;height:48px;}
+  /* ── 완료 리포트 ── */
+  .rp-overlay{position:fixed;inset:0;background:rgba(31,29,26,.55);z-index:60;
+    display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto;}
+  .rp-panel{background:var(--card);border-radius:var(--r);max-width:440px;width:100%;
+    padding:8px 28px 28px;text-align:center;box-shadow:0 24px 60px -20px rgba(31,29,26,.5);}
+  .rp-mascot{width:120px;height:auto;display:block;margin:-4px auto 4px;}
+  .rp-panel h2{font-size:24px;font-weight:800;letter-spacing:-.02em;margin:0 0 4px;color:var(--ink);}
+  .rp-lede{font-size:14.5px;color:var(--ink-soft);font-weight:500;margin:0 0 16px;}
+  .rp-stats{display:flex;gap:8px;margin-bottom:6px;}
+  .rp-stat{flex:1;background:var(--page);border:1px solid var(--line);border-radius:12px;padding:10px 4px;}
+  .rp-stat b{display:block;font-size:19px;font-weight:800;color:var(--accent-ink);font-family:ui-monospace,monospace;}
+  .rp-stat span{display:block;font-size:11.5px;color:var(--ink-soft);font-weight:700;margin-top:2px;}
+  .rp-medallion{position:relative;width:150px;height:150px;margin:8px auto;}
+  .rp-medallion svg{position:absolute;inset:0;width:100%;height:100%;}
+  .rp-medallion .medallion-field circle{fill:var(--line);}
+  .rp-medallion .medallion-heart circle{fill:var(--accent-ink);}
+  .rp-note{font-size:14px;font-weight:700;color:var(--ink);margin:12px 0 4px;}
+  .rp-actions{display:flex;gap:8px;margin-top:14px;}
+  .rp-actions .btn{flex:1;height:46px;}
+  [hidden]{display:none!important;}
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
+  @media (max-width:560px){
+    .keys{gap:6px;} .kbtn.oval{width:44px;} .st,.st .art{width:64px;} .st .art{height:64px;}
+    .line{font-size:16px;}
+  }
+  @media (prefers-reduced-motion:reduce){ *{animation:none!important;transition:none!important;} }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="top">
+    <div>
+      <div class="eyebrow">닷패드 체험단 · 첫 만남</div>
+      <div class="brand">닷친구 <span>·</span> 오늘의 여정</div>
+    </div>
+    <div class="spacer"></div>
+    <div class="score" id="scoreBox" hidden>
+      <svg class="sp ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 18l2.09 1.9l-.2 -2.82l2.11 -1.98l-2.77 -.55l-1.23 -2.55l-1.23 2.55l-2.77 .55l2.11 1.98l-.2 2.82z"/><path d="M6 18l1.05 .95l-.1 -1.41l1.05 -.99l-1.39 -.28l-.61 -1.27l-.61 1.27l-1.39 .28l1.05 .99l-.1 1.41z"/><path d="M12.5 6.5l1.4 1.27l-.14 -1.88l1.4 -1.32l-1.85 -.37l-.81 -1.7l-.81 1.7l-1.85 .37l1.4 1.32l-.14 1.88z"/></svg>
+      <b id="sparkleN">0</b><small>별가루</small>
+    </div>
+  </div>
+
+  <!-- 시작 / 오류 -->
+  <section class="gate" id="gate">
+    <div class="gate-medallion" aria-hidden="true">
+      <svg class="medallion-field" viewBox="0 0 200 200"><circle cx="75.0" cy="8.3" r="2.67"/> <circle cx="91.7" cy="8.3" r="2.67"/> <circle cx="108.3" cy="8.3" r="2.67"/> <circle cx="125.0" cy="8.3" r="2.67"/> <circle cx="41.7" cy="25.0" r="2.67"/> <circle cx="58.3" cy="25.0" r="2.67"/> <circle cx="75.0" cy="25.0" r="2.67"/> <circle cx="91.7" cy="25.0" r="2.67"/> <circle cx="108.3" cy="25.0" r="2.67"/> <circle cx="125.0" cy="25.0" r="2.67"/> <circle cx="141.7" cy="25.0" r="2.67"/> <circle cx="158.3" cy="25.0" r="2.67"/> <circle cx="25.0" cy="41.7" r="2.67"/> <circle cx="75.0" cy="41.7" r="2.67"/> <circle cx="91.7" cy="41.7" r="2.67"/> <circle cx="141.7" cy="41.7" r="2.67"/> <circle cx="158.3" cy="41.7" r="2.67"/> <circle cx="175.0" cy="41.7" r="2.67"/> <circle cx="158.3" cy="58.3" r="2.67"/> <circle cx="175.0" cy="58.3" r="2.67"/> <circle cx="8.3" cy="75.0" r="2.67"/> <circle cx="158.3" cy="75.0" r="2.67"/> <circle cx="175.0" cy="75.0" r="2.67"/> <circle cx="191.7" cy="75.0" r="2.67"/> <circle cx="8.3" cy="91.7" r="2.67"/> <circle cx="25.0" cy="91.7" r="2.67"/> <circle cx="141.7" cy="91.7" r="2.67"/> <circle cx="158.3" cy="91.7" r="2.67"/> <circle cx="175.0" cy="91.7" r="2.67"/> <circle cx="191.7" cy="91.7" r="2.67"/> <circle cx="8.3" cy="108.3" r="2.67"/> <circle cx="25.0" cy="108.3" r="2.67"/> <circle cx="41.7" cy="108.3" r="2.67"/> <circle cx="125.0" cy="108.3" r="2.67"/> <circle cx="141.7" cy="108.3" r="2.67"/> <circle cx="158.3" cy="108.3" r="2.67"/> <circle cx="175.0" cy="108.3" r="2.67"/> <circle cx="191.7" cy="108.3" r="2.67"/> <circle cx="8.3" cy="125.0" r="2.67"/> <circle cx="25.0" cy="125.0" r="2.67"/> <circle cx="41.7" cy="125.0" r="2.67"/> <circle cx="58.3" cy="125.0" r="2.67"/> <circle cx="108.3" cy="125.0" r="2.67"/> <circle cx="125.0" cy="125.0" r="2.67"/> <circle cx="141.7" cy="125.0" r="2.67"/> <circle cx="158.3" cy="125.0" r="2.67"/> <circle cx="175.0" cy="125.0" r="2.67"/> <circle cx="191.7" cy="125.0" r="2.67"/> <circle cx="25.0" cy="141.7" r="2.67"/> <circle cx="41.7" cy="141.7" r="2.67"/> <circle cx="58.3" cy="141.7" r="2.67"/> <circle cx="75.0" cy="141.7" r="2.67"/> <circle cx="91.7" cy="141.7" r="2.67"/> <circle cx="108.3" cy="141.7" r="2.67"/> <circle cx="125.0" cy="141.7" r="2.67"/> <circle cx="141.7" cy="141.7" r="2.67"/> <circle cx="158.3" cy="141.7" r="2.67"/> <circle cx="175.0" cy="141.7" r="2.67"/> <circle cx="25.0" cy="158.3" r="2.67"/> <circle cx="41.7" cy="158.3" r="2.67"/> <circle cx="58.3" cy="158.3" r="2.67"/> <circle cx="75.0" cy="158.3" r="2.67"/> <circle cx="91.7" cy="158.3" r="2.67"/> <circle cx="108.3" cy="158.3" r="2.67"/> <circle cx="125.0" cy="158.3" r="2.67"/> <circle cx="141.7" cy="158.3" r="2.67"/> <circle cx="158.3" cy="158.3" r="2.67"/> <circle cx="175.0" cy="158.3" r="2.67"/> <circle cx="41.7" cy="175.0" r="2.67"/> <circle cx="58.3" cy="175.0" r="2.67"/> <circle cx="75.0" cy="175.0" r="2.67"/> <circle cx="91.7" cy="175.0" r="2.67"/> <circle cx="108.3" cy="175.0" r="2.67"/> <circle cx="125.0" cy="175.0" r="2.67"/> <circle cx="141.7" cy="175.0" r="2.67"/> <circle cx="158.3" cy="175.0" r="2.67"/> <circle cx="75.0" cy="191.7" r="2.67"/> <circle cx="91.7" cy="191.7" r="2.67"/> <circle cx="108.3" cy="191.7" r="2.67"/> <circle cx="125.0" cy="191.7" r="2.67"/></svg>
+      <svg class="medallion-heart" viewBox="0 0 200 200"><circle cx="41.7" cy="41.7" r="4.0"/> <circle cx="58.3" cy="41.7" r="4.0"/> <circle cx="108.3" cy="41.7" r="4.0"/> <circle cx="125.0" cy="41.7" r="4.0"/> <circle cx="25.0" cy="58.3" r="4.0"/> <circle cx="41.7" cy="58.3" r="4.0"/> <circle cx="58.3" cy="58.3" r="4.0"/> <circle cx="75.0" cy="58.3" r="4.0"/> <circle cx="91.7" cy="58.3" r="4.0"/> <circle cx="108.3" cy="58.3" r="4.0"/> <circle cx="125.0" cy="58.3" r="4.0"/> <circle cx="141.7" cy="58.3" r="4.0"/> <circle cx="25.0" cy="75.0" r="4.0"/> <circle cx="41.7" cy="75.0" r="4.0"/> <circle cx="58.3" cy="75.0" r="4.0"/> <circle cx="75.0" cy="75.0" r="4.0"/> <circle cx="91.7" cy="75.0" r="4.0"/> <circle cx="108.3" cy="75.0" r="4.0"/> <circle cx="125.0" cy="75.0" r="4.0"/> <circle cx="141.7" cy="75.0" r="4.0"/> <circle cx="41.7" cy="91.7" r="4.0"/> <circle cx="58.3" cy="91.7" r="4.0"/> <circle cx="75.0" cy="91.7" r="4.0"/> <circle cx="91.7" cy="91.7" r="4.0"/> <circle cx="108.3" cy="91.7" r="4.0"/> <circle cx="125.0" cy="91.7" r="4.0"/> <circle cx="58.3" cy="108.3" r="4.0"/> <circle cx="75.0" cy="108.3" r="4.0"/> <circle cx="91.7" cy="108.3" r="4.0"/> <circle cx="108.3" cy="108.3" r="4.0"/> <circle cx="75.0" cy="125.0" r="4.0"/> <circle cx="91.7" cy="125.0" r="4.0"/></svg>
+      <img class="gate-mascot" src="./assets/mascot-hero.png" alt="닷패드 캐릭터가 손을 흔들고 있어요" width="132" height="131" onerror="this.style.display='none'">
+    </div>
+
+    <p class="gate-doc" id="gateDoc" hidden></p>
+    <h1 id="gateTitle">불러오는 중이에요</h1>
+    <p class="gate-lede" id="gateLede" hidden></p>
+    <div class="gate-chips" id="gateChips" hidden>
+      <span class="chip"><b id="chipStories">0</b>개 이야기</span>
+      <span class="chip"><b id="chipQuestions">0</b>개 질문</span>
+    </div>
+    <p id="gateText">닷패드 소개 자료를 준비하고 있어요.</p>
+    <div id="gateAction" hidden>
+      <p style="margin-bottom:14px">브라우저가 파일을 직접 열지 못하게 막고 있어요. 폴더에서 <code>npx serve .</code> 를 실행하고 다시 열거나,
+        아래에서 <code>.dtms</code>/<code>.dtma</code> 파일과(있다면) <code>.dtm</code> 자산·오디오 파일을 함께 선택하세요.</p>
+      <input type="file" id="filePick" accept=".dtms,.dtma,.dtm,.json,application/json,audio/*" multiple>
+    </div>
+    <button class="btn btn-accent btn-go" id="startBtn" hidden>
+      시작하기
+      <svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6l-6 6"/></svg>
+    </button>
+  </section>
+
+  <main id="main" hidden>
+
+    <div class="trail" id="trail" aria-hidden="true"></div>
+
+    <div class="say" style="margin-top:16px">
+      <div class="avatar"><img src="./assets/mascot-avatar.png" alt="닷패드 캐릭터" width="44" height="44" onerror="this.style.display='none'"></div>
+      <div class="bubble">
+        <div class="who" id="who">닷패드 <span class="speaking" id="speaking" hidden>말하는 중</span></div>
+        <p class="line" id="line"></p>
+      </div>
+    </div>
+
+    <!-- 히어로 -->
+    <section class="device" style="margin-top:18px" aria-hidden="true">
+      <div class="dev-label"><span>여러 줄 점자 칸 · 60 × 40</span><span id="gfxMode">—</span></div>
+      <div class="field" id="field"><canvas id="pin"></canvas></div>
+      <div class="keys" id="keys"></div>
+      <div class="strip" id="strip"></div>
+      <div class="dev-foot"><span>한 줄 점자 칸 · 20셀</span><span id="brlPos">1 / 1 줄</span></div>
+    </section>
+
+    <p class="sr" id="live" role="status" aria-live="polite"></p>
+
+    <section class="coach" id="coach" style="margin-top:18px">
+      <div class="ctitle">지금 도와주기 <span class="pill" id="pill">—</span>
+        <svg class="doodle-burst" id="burst" viewBox="0 0 60 60" aria-hidden="true"><circle cx="50.3" cy="27.5" r="2.54"/> <circle cx="41.2" cy="34.0" r="2.83"/> <circle cx="41.9" cy="42.5" r="2.31"/> <circle cx="34.7" cy="36.6" r="2.07"/> <circle cx="31.3" cy="39.2" r="2.83"/> <circle cx="29.0" cy="42.2" r="1.48"/> <circle cx="16.2" cy="46.3" r="2.98"/> <circle cx="23.2" cy="35.3" r="1.99"/> <circle cx="20.5" cy="33.5" r="3.11"/> <circle cx="19.2" cy="30.5" r="2.87"/> <circle cx="5.9" cy="24.8" r="2.22"/> <circle cx="19.3" cy="20.7" r="2.27"/> <circle cx="24.8" cy="23.0" r="2.96"/> <circle cx="24.1" cy="8.8" r="1.78"/> <circle cx="38.1" cy="7.3" r="2.76"/> <circle cx="40.7" cy="15.0" r="2.71"/> <circle cx="41.1" cy="17.7" r="2.89"/> <circle cx="52.1" cy="19.1" r="3.0"/></svg>
+      </div>
+      <p class="ctext" id="coachText">—</p>
+      <p class="csub" id="coachSub" hidden></p>
+      <div class="nospoil" id="noSpoil" hidden>정답은 알려주지 마세요. 찾아내는 순간이 아이의 것이 되도록요.</div>
+    </section>
+
+    <section class="shelf" id="shelf" style="margin-top:14px">
+      <div class="ctitle">모은 스티커</div>
+      <div class="stickers" id="stickers"></div>
+    </section>
+
+    <div class="bar" style="margin-top:16px">
+      <button class="btn btn-ghost" id="prevBtn" type="button">
+        <svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6l6 6"/></svg>이전
+      </button>
+      <button class="btn btn-accent btn-go" id="nextBtn" type="button">다음
+        <svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6l-6 6"/></svg>
+      </button>
+      <button class="btn btn-ghost" id="replayBtn" type="button">
+        <svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"/><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"/></svg>다시 듣기
+      </button>
+      <button class="btn btn-ghost" id="helpBtn" type="button">
+        <svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2 -3 3 -3 3"/><path d="M12 17h.01"/></svg>도움말
+      </button>
+      <button class="btn btn-ghost" id="soundBtn" type="button" aria-pressed="true" aria-label="음성 켜짐, 누르면 끔"></button>
+      <button class="btn btn-ghost" id="dpBtn" type="button" data-on="0">
+        <svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 8l10 8l-5 4v-16l5 4l-10 8"/></svg><span id="dpLbl">닷패드 연결</span>
+      </button>
+      <div class="spacer"></div>
+      <button class="btn btn-ghost" id="loadBtn" type="button">
+        <svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"/><path d="M7 9l5 -5l5 5"/><path d="M12 4l0 12"/></svg>다른 자료 불러오기
+      </button>
+      <button class="btn btn-ghost" id="resetBtn" type="button">
+        <svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"/><path d="M10 11l0 6"/><path d="M14 11l0 6"/><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"/><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"/></svg>기록 지우기
+      </button>
+    </div>
+
+    <p class="hint" id="loadHint" style="margin-top:12px">
+      <b>다른 자료 불러오기</b>로 <code>.dtms</code>/<code>.dtma</code> 본문과 <code>.dtm</code> 자산·오디오 파일을 한 번에 선택할 수 있어요.<br>
+      아이는 <b>길쭉한 동그라미 버튼</b>으로 답하고, <b>세모 버튼</b>으로 점자 줄을 넘겨요.<br>
+      부모용 키 — <kbd>1</kbd>~<kbd>4</kbd> 답하기 · <kbd>→</kbd> 다음 · <kbd>←</kbd> 이전 · <kbd>↓</kbd><kbd>↑</kbd> 점자 줄 · <kbd>R</kbd> 다시 듣기 · <kbd>H</kbd> 도움말
+    </p>
+  </main>
+
+  <!-- 첫 연결 놀이: 닷패드가 처음 연결되는 순간, 화면 중앙에서 모양을 골라
+       실제 기기에도 똑같이 띄워보는 짧은 인터랙션. -->
+  <div class="fc-overlay" id="fcOverlay" hidden role="dialog" aria-modal="true" aria-labelledby="fcTitle">
+    <section class="fc-panel">
+      <h2 id="fcTitle">짜잔, 닷패드가 연결됐어요!</h2>
+      <p class="fc-sub">아래 모양을 하나 골라보세요. 화면과 <b>실제 닷패드</b>에 동시에 떠올라요.</p>
+      <div class="fc-field"><canvas id="fcCanvas"></canvas></div>
+      <div class="fc-shapes" id="fcShapes">
+        <button type="button" class="fc-shape" data-shape="heart">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"/></svg>
+          하트
+        </button>
+        <button type="button" class="fc-shape" data-shape="smile">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9 10l.01 0"/><path d="M15 10l.01 0"/><path d="M9.5 15a3.5 3.5 0 0 0 5 0"/></svg>
+          웃는 얼굴
+        </button>
+        <button type="button" class="fc-shape" data-shape="star">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"/></svg>
+          별
+        </button>
+      </div>
+      <p class="fc-hint" id="fcHint">위 세 모양 중 하나를 눌러 만져보세요.</p>
+      <button type="button" class="btn btn-accent" id="fcDone">이제 시작할까요? <svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6l-6 6"/></svg></button>
+    </section>
+  </div>
+
+  <!-- 완료 리포트: 27개 이야기를 다 마쳤을 때 뜨는 화면. 게이트의 점-하트
+       시그니처를 더 크게 재사용하고, 이미 만든 점프 GIF·스티커 렌더링을 그대로 씁니다. -->
+  <div class="rp-overlay" id="reportOverlay" hidden role="dialog" aria-modal="true" aria-labelledby="rpTitle">
+    <section class="rp-panel">
+      <img class="rp-mascot" src="./assets/mascot-jump.gif" alt="닷패드 캐릭터가 신나게 뛰고 있어요" id="rpMascotImg">
+      <h2 id="rpTitle">오늘 참 잘했어요!</h2>
+      <p class="rp-lede" id="rpLede">손끝으로 이야기를 다 만났어요.</p>
+
+      <div class="rp-stats">
+        <div class="rp-stat"><b id="rpStories">27</b><span>이야기</span></div>
+        <div class="rp-stat"><b id="rpQuestions">0/16</b><span>질문</span></div>
+        <div class="rp-stat"><b id="rpTime">0분</b><span>걸린 시간</span></div>
+      </div>
+
+      <div class="rp-medallion" aria-hidden="true">
+        <svg class="medallion-field" viewBox="0 0 200 200"><circle cx="75.0" cy="8.3" r="2.67"/> <circle cx="91.7" cy="8.3" r="2.67"/> <circle cx="108.3" cy="8.3" r="2.67"/> <circle cx="125.0" cy="8.3" r="2.67"/> <circle cx="41.7" cy="25.0" r="2.67"/> <circle cx="58.3" cy="25.0" r="2.67"/> <circle cx="75.0" cy="25.0" r="2.67"/> <circle cx="91.7" cy="25.0" r="2.67"/> <circle cx="108.3" cy="25.0" r="2.67"/> <circle cx="125.0" cy="25.0" r="2.67"/> <circle cx="141.7" cy="25.0" r="2.67"/> <circle cx="158.3" cy="25.0" r="2.67"/> <circle cx="25.0" cy="41.7" r="2.67"/> <circle cx="75.0" cy="41.7" r="2.67"/> <circle cx="91.7" cy="41.7" r="2.67"/> <circle cx="141.7" cy="41.7" r="2.67"/> <circle cx="158.3" cy="41.7" r="2.67"/> <circle cx="175.0" cy="41.7" r="2.67"/> <circle cx="158.3" cy="58.3" r="2.67"/> <circle cx="175.0" cy="58.3" r="2.67"/> <circle cx="8.3" cy="75.0" r="2.67"/> <circle cx="158.3" cy="75.0" r="2.67"/> <circle cx="175.0" cy="75.0" r="2.67"/> <circle cx="191.7" cy="75.0" r="2.67"/> <circle cx="8.3" cy="91.7" r="2.67"/> <circle cx="25.0" cy="91.7" r="2.67"/> <circle cx="141.7" cy="91.7" r="2.67"/> <circle cx="158.3" cy="91.7" r="2.67"/> <circle cx="175.0" cy="91.7" r="2.67"/> <circle cx="191.7" cy="91.7" r="2.67"/> <circle cx="8.3" cy="108.3" r="2.67"/> <circle cx="25.0" cy="108.3" r="2.67"/> <circle cx="41.7" cy="108.3" r="2.67"/> <circle cx="125.0" cy="108.3" r="2.67"/> <circle cx="141.7" cy="108.3" r="2.67"/> <circle cx="158.3" cy="108.3" r="2.67"/> <circle cx="175.0" cy="108.3" r="2.67"/> <circle cx="191.7" cy="108.3" r="2.67"/> <circle cx="8.3" cy="125.0" r="2.67"/> <circle cx="25.0" cy="125.0" r="2.67"/> <circle cx="41.7" cy="125.0" r="2.67"/> <circle cx="58.3" cy="125.0" r="2.67"/> <circle cx="108.3" cy="125.0" r="2.67"/> <circle cx="125.0" cy="125.0" r="2.67"/> <circle cx="141.7" cy="125.0" r="2.67"/> <circle cx="158.3" cy="125.0" r="2.67"/> <circle cx="175.0" cy="125.0" r="2.67"/> <circle cx="191.7" cy="125.0" r="2.67"/> <circle cx="25.0" cy="141.7" r="2.67"/> <circle cx="41.7" cy="141.7" r="2.67"/> <circle cx="58.3" cy="141.7" r="2.67"/> <circle cx="75.0" cy="141.7" r="2.67"/> <circle cx="91.7" cy="141.7" r="2.67"/> <circle cx="108.3" cy="141.7" r="2.67"/> <circle cx="125.0" cy="141.7" r="2.67"/> <circle cx="141.7" cy="141.7" r="2.67"/> <circle cx="158.3" cy="141.7" r="2.67"/> <circle cx="175.0" cy="141.7" r="2.67"/> <circle cx="25.0" cy="158.3" r="2.67"/> <circle cx="41.7" cy="158.3" r="2.67"/> <circle cx="58.3" cy="158.3" r="2.67"/> <circle cx="75.0" cy="158.3" r="2.67"/> <circle cx="91.7" cy="158.3" r="2.67"/> <circle cx="108.3" cy="158.3" r="2.67"/> <circle cx="125.0" cy="158.3" r="2.67"/> <circle cx="141.7" cy="158.3" r="2.67"/> <circle cx="158.3" cy="158.3" r="2.67"/> <circle cx="175.0" cy="158.3" r="2.67"/> <circle cx="41.7" cy="175.0" r="2.67"/> <circle cx="58.3" cy="175.0" r="2.67"/> <circle cx="75.0" cy="175.0" r="2.67"/> <circle cx="91.7" cy="175.0" r="2.67"/> <circle cx="108.3" cy="175.0" r="2.67"/> <circle cx="125.0" cy="175.0" r="2.67"/> <circle cx="141.7" cy="175.0" r="2.67"/> <circle cx="158.3" cy="175.0" r="2.67"/> <circle cx="75.0" cy="191.7" r="2.67"/> <circle cx="91.7" cy="191.7" r="2.67"/> <circle cx="108.3" cy="191.7" r="2.67"/> <circle cx="125.0" cy="191.7" r="2.67"/></svg>
+        <svg class="medallion-heart" viewBox="0 0 200 200"><circle cx="41.7" cy="41.7" r="4.0"/> <circle cx="58.3" cy="41.7" r="4.0"/> <circle cx="108.3" cy="41.7" r="4.0"/> <circle cx="125.0" cy="41.7" r="4.0"/> <circle cx="25.0" cy="58.3" r="4.0"/> <circle cx="41.7" cy="58.3" r="4.0"/> <circle cx="58.3" cy="58.3" r="4.0"/> <circle cx="75.0" cy="58.3" r="4.0"/> <circle cx="91.7" cy="58.3" r="4.0"/> <circle cx="108.3" cy="58.3" r="4.0"/> <circle cx="125.0" cy="58.3" r="4.0"/> <circle cx="141.7" cy="58.3" r="4.0"/> <circle cx="25.0" cy="75.0" r="4.0"/> <circle cx="41.7" cy="75.0" r="4.0"/> <circle cx="58.3" cy="75.0" r="4.0"/> <circle cx="75.0" cy="75.0" r="4.0"/> <circle cx="91.7" cy="75.0" r="4.0"/> <circle cx="108.3" cy="75.0" r="4.0"/> <circle cx="125.0" cy="75.0" r="4.0"/> <circle cx="141.7" cy="75.0" r="4.0"/> <circle cx="41.7" cy="91.7" r="4.0"/> <circle cx="58.3" cy="91.7" r="4.0"/> <circle cx="75.0" cy="91.7" r="4.0"/> <circle cx="91.7" cy="91.7" r="4.0"/> <circle cx="108.3" cy="91.7" r="4.0"/> <circle cx="125.0" cy="91.7" r="4.0"/> <circle cx="58.3" cy="108.3" r="4.0"/> <circle cx="75.0" cy="108.3" r="4.0"/> <circle cx="91.7" cy="108.3" r="4.0"/> <circle cx="108.3" cy="108.3" r="4.0"/> <circle cx="75.0" cy="125.0" r="4.0"/> <circle cx="91.7" cy="125.0" r="4.0"/></svg>
+      </div>
+
+      <div class="ctitle" style="justify-content:center;margin-top:2px;">모은 스티커</div>
+      <div class="stickers" id="reportStickers" style="justify-content:center;"></div>
+
+      <p class="rp-note" id="rpNote"></p>
+
+      <div class="rp-actions">
+        <button type="button" class="btn btn-ghost" id="reportClose">화면 더 볼래요</button>
+        <button type="button" class="btn btn-accent" id="reportRestart">처음부터 다시 하기</button>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script src="/tts.js" onerror="this.remove()"></script>
+<script src="./tts-local.js"></script>
+<script src="./vendor/jszip.min.js"></script>
+<script>
+(function(){
+  "use strict";
+  const N=60, M=40, GFX_HEX=600, BRL_CELLS=20, BRL_HEX=BRL_CELLS*2;
+  const EA=[[0,0],[0,1],[0,2],[0,3],[1,0],[1,1],[1,2],[1,3]];
+  const params=new URLSearchParams(location.search);
+  const LANG=(params.get('lang')==='en')?'en':'ko';
+  const SRC=params.get('src')||'./content/01_intro.dtms';
+  const IACT_SRC=params.get('iact')||SRC.replace(/\.dtms$/i,'.iact.json');
+
+  let doc=null,pages=[],stickerDefs={},idx=0,brlPage=0;
+  let ILLUST_PAGES=new Set();  // 그림이 실제로 그려지는 페이지(육안 확인). 그 외엔 내레이션의 점자 표시.
+  let soundOn=true, ac=null, started=false;
+  let sdk=null,scanner=null,KeyCodes=null,DataCodes=null,dpConnected=false;
+  let ask={active:false,tries:0,resolved:false,busy:false};
+
+  const $=id=>document.getElementById(id);
+  const pinCv=$('pin'), pctx=pinCv.getContext('2d');
+
+  /* ══ 음성 어댑터 (슈퍼닷 교체 지점) ══
+     안전장치: onEnd 콜백 하나에 전체 진행(다음 내레이션 → 질문 열기 → 페이지 전환)이
+     걸려 있으므로, TTS가 실패하거나(네트워크 장애) 브라우저 폴백 음성이 응답 없이
+     멈추는 환경(음성 엔진 미설치 등)에서는 onEnd가 영원히 안 불려 앱 전체가 멈춥니다.
+     실제 QA에서 이 경로로 27페이지 중 16개 질문 페이지가 전부 멈추는 걸 확인했습니다.
+     그래서 음성 길이에 비례한 최대 대기 시간을 두고, 그 안에 onEnd가 안 오면
+     강제로 다음 단계로 넘어가게 합니다 — 음성은 실패해도 진행은 절대 멈추지 않습니다. */
+  const Voice={
+    enabled:true,
+    // audioUrl이 있으면 실제 녹음 파일을 우선 재생하고, 실패하면 TTS로 자동 전환합니다.
+    // 어느 경로든 finish()는 반드시 시간 안에 불려 진행이 멈추지 않습니다(§5.1 안전장치).
+    speak(text,opts){
+      opts=opts||{};
+      if(!this.enabled){opts.onEnd&&opts.onEnd();return;}
+      const role=opts.role||'dotpad';
+      let done=false;
+      const speakingEl=document.getElementById('speaking');
+      if(role==='dotpad'&&speakingEl) speakingEl.hidden=false;
+      const finish=()=>{ if(done)return; done=true; clearTimeout(timer);
+        if(role==='dotpad'&&speakingEl) speakingEl.hidden=true;
+        opts.onEnd&&opts.onEnd(); };
+      const hasAudio=!!opts.audioUrl;
+      // 오디오 파일은 길이를 미리 알 수 없어 넉넉한 고정 상한(20초)을 씁니다.
+      const timeoutMs = hasAudio ? 20000 : Math.min(12000,Math.max(4000,String(text||'').length*150));
+      const timer=setTimeout(finish,timeoutMs);
+      const playTTS=()=>{
+        if(!text){finish();return;}
+        const go=()=>{ if(window.TW_TTS) TW_TTS.speak(String(text),{lang:LANG,onEnd:finish}); else finish(); };
+        if(role==='system'){ earcon(880,.06); setTimeout(go,180); } else go();
+      };
+      if(hasAudio){
+        let switched=false;
+        const toTTS=()=>{ if(switched)return; switched=true; playTTS(); };
+        try{
+          const a=new Audio(opts.audioUrl);
+          a.onended=finish; a.onerror=toTTS;
+          a.play().catch(toTTS);
+        }catch(e){ toTTS(); }
+      } else {
+        playTTS();
+      }
+    },
+    stop(){ if(window.TW_TTS) TW_TTS.stop(); const el=document.getElementById('speaking'); if(el)el.hidden=true; },
+    setEnabled(on){ this.enabled=!!on; if(window.TW_TTS) TW_TTS.setEnabled(this.enabled); if(!this.enabled) this.stop(); }
+  };
+  if(window.TW_TTS) TW_TTS.setLang(LANG);
+
+  /* ══ 저장 ══ */
+  const Store={key:'dotbuddy.progress.v1',mem:null,
+    load(){const d={sparkle:0,stickers:[]};try{const r=localStorage.getItem(this.key);return r?Object.assign(d,JSON.parse(r)):d;}catch(e){return this.mem||d;}},
+    save(d){this.mem=d;try{localStorage.setItem(this.key,JSON.stringify(d));}catch(e){}},
+    clear(){this.mem=null;try{localStorage.removeItem(this.key);}catch(e){}}};
+  let prog=Store.load();
+  // 완료 리포트용 세션 통계 — 저장하지 않고 이번 실행 동안만 집계합니다.
+  let session={startedAt:0, answered:0, firstTry:0};
+
+  /* ══ 소리 ══ */
+  function ensureAudio(){ if(!ac){try{ac=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}} if(ac&&ac.state==='suspended'){try{ac.resume();}catch(e){}} }
+  function earcon(f,d,t){ if(!soundOn||!ac)return; try{const o=ac.createOscillator(),g=ac.createGain(),t0=ac.currentTime;
+    o.type=t||'sine';o.frequency.value=f;g.gain.setValueAtTime(.0001,t0);g.gain.exponentialRampToValueAtTime(.22,t0+.02);
+    g.gain.exponentialRampToValueAtTime(.0001,t0+d);o.connect(g);g.connect(ac.destination);o.start(t0);o.stop(t0+d+.02);}catch(e){} }
+  const dingOK=()=>{earcon(523,.12);setTimeout(()=>earcon(659,.12),110);setTimeout(()=>earcon(784,.22),220);};
+  const dingMiss=()=>{earcon(300,.14,'triangle');setTimeout(()=>earcon(220,.18,'triangle'),120);};
+  const dingWin=()=>{dingOK();setTimeout(()=>earcon(1047,.3),420);};
+
+  /* ══ 파서 ══ */
+  const padHex=(h,l)=>{h=(h||'').replace(/[^0-9a-fA-F]/g,'');return h.length>=l?h.slice(0,l):h+'0'.repeat(l-h.length);};
+  function splitBraille(h){h=(h||'').replace(/[^0-9a-fA-F]/g,'');if(!h)return[''.padEnd(BRL_HEX,'0')];
+    const o=[];for(let i=0;i<h.length;i+=BRL_HEX)o.push(h.slice(i,i+BRL_HEX).padEnd(BRL_HEX,'0'));return o;}
+  function parseDTMS(j){
+    if(!j||!Array.isArray(j.items)) throw new Error('items 배열이 없습니다');
+    return j.items.map((it,i)=>({page:it.page!=null?it.page:i+1,title:(it.title||'').trim(),
+      gfxName:(it.graphic&&it.graphic.name)||'',gfx:padHex((it.graphic&&it.graphic.data)||'',GFX_HEX),
+      brlPages:splitBraille((it.text&&it.text.data)||''),
+      plain:(it.text&&it.text.plain)?String(it.text.plain):'',
+      audioFile:(it.audio&&it.audio.fileName)||'', audioUrl:null, iact:normIact(it.interaction)}));
+  }
+  // 순수 헥스 텍스트 파일이든, {data:...} 또는 {graphic:{data:...}} 형태의 JSON이든
+  // 둘 다 시도해 600자리 그래픽 헥스를 뽑아냅니다. 실제 .dtm 원본을 아직 못 봐서
+  // 두 가능성을 방어적으로 다 처리합니다 — 형식이 다르면 알려주세요.
+  function extractHexFromDtm(raw){
+    const clean=(s)=>(s||'').replace(/[^0-9a-fA-F]/g,'');
+    try{
+      const j=JSON.parse(raw);
+      const cand=(j&&(j.data||(j.graphic&&j.graphic.data)||j.hex))||null;
+      if(cand){ const h=clean(cand); if(h.length>=GFX_HEX) return h.slice(0,GFX_HEX); }
+    }catch(e){}
+    const h=clean(raw);
+    if(h.length>=GFX_HEX) return h.slice(0,GFX_HEX);
+    return null;
+  }
+  // 업로드된 .dtm 자산·오디오 파일을 페이지별 gfxName/audioFile과 이름으로 매칭합니다.
+  // 원본에 이미 그래픽이 내장돼 있으면(현재 기본 콘텐츠가 그렇습니다) 건드리지 않습니다 —
+  // 이름만 있고 데이터가 비어 있는 경우에만 외부 .dtm으로 채웁니다.
+  function resolveAssets(pages, dtmFiles, audioFiles){
+    let dtmResolved=0, audioResolved=0; const dtmMissing=[];
+    pages.forEach(p=>{
+      const wasEmpty=/^0+$/.test(p.gfx);
+      if(wasEmpty && p.gfxName){
+        if(dtmFiles[p.gfxName]){ p.gfx=dtmFiles[p.gfxName]; dtmResolved++; }
+        else dtmMissing.push(p.gfxName);
+      }
+      if(p.audioFile){
+        const base=p.audioFile.replace(/\.[^.]+$/,'');
+        const url=audioFiles[p.audioFile]||audioFiles[base];  // 확장자가 바뀌어 올라온 경우(예: mp3→wav)도 이름만 맞으면 매칭
+        if(url){ p.audioUrl=url; audioResolved++; }
+      }
+    });
+    return {dtmResolved, audioResolved, dtmMissing};
+  }
+  function normIact(raw){
+    if(!raw||!raw.type)return null;
+    const t=raw.type, o={type:t,prompt:raw.prompt||'',promptChild:raw.promptChild||'',parentCoach:raw.parentCoach||'',
+      choices:null,expect:null,soft:false,onCorrect:raw.onCorrect||null,onWrong:raw.onWrong||null};
+    if(t==='yes-no'){o.choices=[{key:'F1',label:'응'},{key:'F2',label:'아니'}];o.choices[0].correct=true;
+      o.onCorrect=raw.onYes||null;o.onWrong=raw.onNo||null;o.soft=true;}
+    else if(t==='count'){o.choices=[1,2,3,4].map(n=>({key:'F'+n,label:n+'개',correct:n===raw.answer}));}
+    else if(t==='choice'||t==='quadrant-choice'){o.choices=Array.isArray(raw.choices)?raw.choices.slice():[];}
+    else if(t==='button-press'){o.expect=raw.expect||'F4';}
+    return o;
+  }
+  function mergeSidecar(s){ if(!s||!s.pages)return 0; stickerDefs=s.stickers||{};
+    ILLUST_PAGES=new Set(s.illustrationPages||[]); let n=0;
+    pages.forEach(p=>{const r=s.pages[String(p.page)];if(r){p.iact=normIact(r)||p.iact;n++;}}); return n; }
+
+  /* ══ 핀 디코딩 & 렌더 ══ */
+  function decodeFrame(hex){
+    const g=Array.from({length:M},()=>new Uint8Array(N)); let i=0;
+    for(let s=0;s<10;s++)for(let n=0;n<30;n++){const b=parseInt(hex.substr(i,2),16)||0;i+=2;
+      for(let m=0;m<8;m++) if((b>>m)&1) g[s*4+EA[m][1]][n*2+EA[m][0]]=1;}
+    return g;
+  }
+  // decodeFrame의 역방향 — on 칸의 [row,col] 목록을 600hex로 인코딩합니다.
+  // 첫 연결 놀이(하트/웃는얼굴/별)를 실제 화면·기기에 동시에 띄우는 데 씁니다.
+  function encodeFrame(onCells){
+    const g=Array.from({length:M},()=>new Uint8Array(N));
+    onCells.forEach(([y,x])=>{ if(y>=0&&y<M&&x>=0&&x<N) g[y][x]=1; });
+    const out=[];
+    for(let s=0;s<10;s++)for(let n=0;n<30;n++){
+      let byte=0;
+      for(let m=0;m<8;m++){ const u=EA[m][0],p=EA[m][1]; if(g[s*4+p][n*2+u]) byte|=1<<m; }
+      out.push(byte.toString(16).padStart(2,'0'));
+    }
+    return out.join('');
+  }
+  // 24x16 격자 도형을 60x40 캔버스 중앙(오프셋 18,12)에 배치합니다.
+  const SHAPE_OFFSET=[12,18]; // [y,x]
+  const SHAPES={
+    heart: [[0,2],[0,3],[0,4],[0,9],[0,10],[0,11],[1,1],[1,2],[1,3],[1,4],[1,5],[1,8],[1,9],[1,10],[1,11],[1,12],[2,0],[2,1],[2,2],[2,3],[2,4],[2,5],[2,6],[2,7],[2,8],[2,9],[2,10],[2,11],[2,12],[2,13],[3,0],[3,1],[3,2],[3,3],[3,4],[3,5],[3,6],[3,7],[3,8],[3,9],[3,10],[3,11],[3,12],[3,13],[4,0],[4,1],[4,2],[4,3],[4,4],[4,5],[4,6],[4,7],[4,8],[4,9],[4,10],[4,11],[4,12],[4,13],[5,1],[5,2],[5,3],[5,4],[5,5],[5,6],[5,7],[5,8],[5,9],[5,10],[5,11],[5,12],[6,2],[6,3],[6,4],[6,5],[6,6],[6,7],[6,8],[6,9],[6,10],[6,11],[7,3],[7,4],[7,5],[7,6],[7,7],[7,8],[7,9],[7,10],[8,4],[8,5],[8,6],[8,7],[8,8],[8,9],[9,5],[9,6],[9,7],[9,8],[10,6],[10,7]],
+    smile: [[3,10],[3,11],[3,12],[3,13],[4,7],[4,10],[4,11],[4,12],[4,13],[4,16],[5,6],[5,10],[5,11],[5,12],[5,13],[5,17],[6,5],[6,6],[6,7],[6,8],[6,9],[6,10],[6,11],[6,12],[6,13],[6,14],[6,15],[6,16],[6,17],[6,18],[7,5],[7,6],[7,7],[7,8],[7,9],[7,10],[7,11],[7,12],[7,13],[7,14],[7,15],[7,16],[7,17],[7,18],[8,5],[8,6],[8,7],[8,8],[8,9],[8,10],[8,11],[8,12],[8,13],[8,14],[8,15],[8,16],[8,17],[8,18],[9,5],[9,6],[9,7],[9,8],[9,15],[9,16],[9,17],[9,18],[10,6],[10,17],[11,9],[11,10],[11,11],[11,12],[11,13],[11,14],[12,10],[12,11],[12,12],[12,13]],
+    star: [[0,11],[1,10],[1,11],[1,12],[2,10],[2,11],[2,12],[3,10],[3,11],[3,12],[4,6],[4,7],[4,8],[4,9],[4,10],[4,11],[4,12],[4,13],[4,14],[4,15],[4,16],[5,6],[5,7],[5,8],[5,9],[5,10],[5,11],[5,12],[5,13],[5,14],[5,15],[5,16],[6,7],[6,8],[6,9],[6,10],[6,11],[6,12],[6,13],[6,14],[6,15],[7,8],[7,9],[7,10],[7,11],[7,12],[7,13],[7,14],[8,9],[8,10],[8,11],[8,12],[8,13],[9,9],[9,10],[9,11],[9,12],[9,13],[10,9],[10,10],[10,11],[10,12],[10,13],[11,8],[11,9],[11,10],[11,11],[11,12],[11,13],[11,14],[12,8],[12,9],[12,10],[12,12],[12,13],[12,14],[13,8],[13,9],[13,13],[13,14],[14,8],[14,14],[15,8],[15,14]]
+  };
+  function shapeHex(name){
+    const cells=(SHAPES[name]||[]).map(([r,c])=>[r+SHAPE_OFFSET[0], c+SHAPE_OFFSET[1]]);
+    return encodeFrame(cells);
+  }
+  // dot-games-host의 실제 핀 프리뷰 규약(dotmaze drawPin)을 그대로 재사용:
+  // 올라온 핀=잉크색, 내려간 핀=옅은 웜그레이, 배경=웜 크림. 네온 글로우 없이
+  // 은은한 잉크빛 그림자만 둬서 "만졌을 때 융기한 느낌"을 절제해서 표현합니다.
+  function drawPin(hex){ drawPinTo(pinCv, pctx, hex); }
+  function drawPinTo(cv, ctx, hex){
+    const f=decodeFrame(hex), W=cv.clientWidth||520, gap=W/N, H=gap*M, dpr=window.devicePixelRatio||1;
+    cv.style.height=H+'px'; cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,W,H);
+    const rOn=gap*.38, rOff=gap*.12;
+    for(let y=0;y<M;y++)for(let x=0;x<N;x++){
+      const on=f[y][x], cx=x*gap+gap/2, cy=y*gap+gap/2;
+      if(on){ ctx.fillStyle='rgba(33,29,22,.12)'; ctx.beginPath(); ctx.arc(cx,cy+gap*.05,rOn*1.15,0,6.2832); ctx.fill(); }
+      ctx.fillStyle=on?'#211D16':'#D9D3C6';
+      ctx.beginPath(); ctx.arc(cx,cy,on?rOn:rOff,0,6.2832); ctx.fill();
+    }
+  }
+  // 정답/완료 순간엔 점프 GIF로 잠깐 바꿨다가, 재생이 끝나면 평소 웨이빙 정지
+  // 이미지로 되돌립니다. GIF는 매번 처음부터 재생되도록 캐시버스터를 붙입니다.
+  const AVATAR_IDLE='./assets/mascot-avatar.png', AVATAR_JUMP='./assets/mascot-jump.gif';
+  let faceTimer=null;
+  function setFace(state){
+    const img=document.querySelector('.avatar img');
+    if(!img) return;
+    clearTimeout(faceTimer);
+    if(state==='happy'){
+      img.src=AVATAR_JUMP+'?t='+Date.now();
+      faceTimer=setTimeout(()=>{ img.src=AVATAR_IDLE; },2200);
+    } else {
+      img.src=AVATAR_IDLE;
+    }
+  }
+
+  /* ══ 버튼 줄 ══ */
+  // 색은 인라인이 아니라 .kbtn.tri svg path CSS로 제어(평소/hot 상태 전환).
+  const TRI='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4 L15 20 L5 12 Z"/></svg>';
+  const TRI_R='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4 L9 20 L19 12 Z"/></svg>';
+  function buildKeys(){
+    const k=$('keys'); k.innerHTML='';
+    const mk=(cls,html,id)=>{const d=document.createElement('div');d.className='kbtn '+cls;d.innerHTML=html;d.dataset.k=id;k.appendChild(d);return d;};
+    mk('tri',TRI,'PanningLeft');
+    for(let i=1;i<=4;i++) mk('oval','<small>'+i+'</small>','F'+i);
+    mk('tri',TRI_R,'PanningRight');
+  }
+  function highlightKeys(){
+    const ia=pages[idx].iact, hot=new Set();
+    if(ask.active&&ia){
+      if(ia.expect) hot.add(ia.expect);
+      else if(ia.choices) ia.choices.forEach(c=>hot.add(c.key));
+    }
+    document.querySelectorAll('.kbtn').forEach(el=>el.classList.toggle('hot',hot.has(el.dataset.k)));
+  }
+
+  /* ══ 점자 스트립 ══ */
+  function renderStrip(){
+    const p=pages[idx], hex=p.brlPages[brlPage]||'', s=$('strip'); s.innerHTML='';
+    for(let i=0;i<BRL_CELLS;i++){
+      const b=parseInt(hex.substr(i*2,2),16)||0;
+      const c=document.createElement('div'); c.className='cell';
+      // 2열 × 3행: 1·4 / 2·5 / 3·6
+      [[0,3],[1,4],[2,5]].forEach(row=>row.forEach(bit=>{
+        const d=document.createElement('i'); if((b>>bit)&1) d.className='up'; c.appendChild(d);
+      }));
+      s.appendChild(c);
+    }
+    $('brlPos').textContent=(brlPage+1)+' / '+p.brlPages.length+' 줄';
+  }
+
+  /* ══ 스티커 (실제 dtm 자산에서 그림 추출) ══
+     페이지 번호로 원본을 찾습니다. 파일명(2.dtm/4.dtm/26.dtm 등)은 이 DTMS 안에서
+     페이지마다 다른 그림에 재사용되는 걸 확인해 이름 대신 page 번호를 키로 씁니다.
+     def.room 이 있으면 전체 프레임이 아니라 그 사각형(예: 4방 게임의 정답 방)만 잘라냅니다. */
+  function stickerArt(canvas, def){
+    const src = pages.find(p => p.page === def.page);
+    const ctx = canvas.getContext('2d'), S = 104, dpr = window.devicePixelRatio||1;
+    canvas.width = S*dpr; canvas.height = S*dpr; ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,S,S);
+    if (!src) return;
+    const f = decodeFrame(src.gfx);
+    const [rx0, rx1, ry0, ry1] = def.room || [0, N-1, 0, M-1];
+    let x0=N, x1=-1, y0=M, y1=-1;
+    for (let y=ry0; y<=ry1; y++) for (let x=rx0; x<=rx1; x++)
+      if (f[y][x]){ if(x<x0)x0=x; if(x>x1)x1=x; if(y<y0)y0=y; if(y>y1)y1=y; }
+    if (x1<0) return;
+    const w=x1-x0+1, h=y1-y0+1, g=Math.min(S/w,S/h)*.86, ox=(S-w*g)/2, oy=(S-h*g)/2;
+    for (let y=y0;y<=y1;y++) for (let x=x0;x<=x1;x++) if (f[y][x]){
+      ctx.fillStyle='#B57A00';
+      ctx.beginPath(); ctx.arc(ox+(x-x0)*g+g/2, oy+(y-y0)*g+g/2, g*.42,0,6.2832); ctx.fill();
+    }
+  }
+  function renderStickers(popId){
+    const box=$('stickers'), ids=Object.keys(stickerDefs);
+    if(!ids.length){ box.innerHTML='<span class="csub" style="margin:0">아직 준비된 스티커가 없어요.</span>'; return; }
+    box.innerHTML='';
+    const burstSvg = '<svg class="doodle-burst st-burst fire" viewBox="0 0 60 60" aria-hidden="true"><circle cx="50.3" cy="27.5" r="2.54"/> <circle cx="41.2" cy="34.0" r="2.83"/> <circle cx="41.9" cy="42.5" r="2.31"/> <circle cx="34.7" cy="36.6" r="2.07"/> <circle cx="31.3" cy="39.2" r="2.83"/> <circle cx="29.0" cy="42.2" r="1.48"/> <circle cx="16.2" cy="46.3" r="2.98"/> <circle cx="23.2" cy="35.3" r="1.99"/> <circle cx="20.5" cy="33.5" r="3.11"/> <circle cx="19.2" cy="30.5" r="2.87"/> <circle cx="5.9" cy="24.8" r="2.22"/> <circle cx="19.3" cy="20.7" r="2.27"/> <circle cx="24.8" cy="23.0" r="2.96"/> <circle cx="24.1" cy="8.8" r="1.78"/> <circle cx="38.1" cy="7.3" r="2.76"/> <circle cx="40.7" cy="15.0" r="2.71"/> <circle cx="41.1" cy="17.7" r="2.89"/> <circle cx="52.1" cy="19.1" r="3.0"/></svg>';
+    ids.forEach(id=>{
+      const got=prog.stickers.indexOf(id)!==-1, def=stickerDefs[id]||{}, isPop=(id===popId);
+      const el=document.createElement('div');
+      el.className='st'+(got?' got':'')+(isPop?' pop':'');
+      el.innerHTML='<div class="art"><canvas></canvas>'+(isPop?burstSvg:'')+'</div><b>'+(got?(def.name||id):'???')+'</b>';
+      box.appendChild(el);
+      if (def.page != null) stickerArt(el.querySelector('canvas'), def);
+    });
+    $('sparkleN').textContent=prog.sparkle;
+  }
+
+  /* ══ 출력 ══ */
+  function sendToPad(){
+    if(!dpConnected||!sdk)return;
+    const p=pages[idx];
+    try{ sdk.displayGraphicData(p.gfx); sdk.displayTextData(p.brlPages[brlPage]||''.padEnd(BRL_HEX,'0')); }catch(e){}
+  }
+  function say(t){ $('live').textContent=t; }
+
+  const TYPE_LABEL={'yes-no':'예 또는 아니오','count':'개수 세기','choice':'보기 고르기',
+    'quadrant-choice':'네 방 중에서','button-press':'버튼 눌러보기','explore':'만져보는 중','none':'듣는 중'};
+
+  function renderCoach(){
+    const ia=pages[idx].iact, c=$('coach'), pill=$('pill');
+    c.classList.remove('ask','ok');
+    pill.className='pill';
+    if(!ia){ pill.textContent='듣는 중'; $('coachText').textContent='이야기를 들려주고 있어요. 아이가 편하게 듣게 두세요.';
+      $('coachSub').hidden=true; $('noSpoil').hidden=true; return; }
+    const scored=!!(ia.choices||ia.expect);
+    pill.textContent=TYPE_LABEL[ia.type]||ia.type;
+    if(ask.active){ c.classList.add('ask'); pill.classList.add('live'); pill.textContent='답 기다리는 중'; }
+    else if(ask.resolved){ c.classList.add('ok'); pill.classList.add('done'); pill.textContent='해냈어요'; }
+    $('coachText').textContent = ia.parentCoach || (scored
+      ? '아이가 스스로 만져보고 답할 때까지 기다려 주세요.'
+      : '충분히 만져볼 시간을 주세요. 준비되면 다음으로 넘어가요.');
+    if(ia.prompt){ $('coachSub').textContent='아이에게 물은 것 — “'+ia.prompt+'”'; $('coachSub').hidden=false; }
+    else $('coachSub').hidden=true;
+    $('noSpoil').hidden = !(scored && !ask.resolved);
+  }
+  function renderTrail(){
+    const t=$('trail'); t.innerHTML='';
+    pages.forEach((p,i)=>{const d=document.createElement('i');
+      if(i<idx)d.className='on'; if(i===idx)d.className='now'; t.appendChild(d);});
+    const cap=document.createElement('span'); cap.className='trail-cap';
+    cap.textContent=(idx+1)+' / '+pages.length; t.appendChild(cap);
+  }
+
+  function render(speakNow){
+    const p=pages[idx];
+    $('line').textContent=p.plain||'(내레이션 없음)';
+    // 이 DTMS는 27쪽 중 8쪽(5~8, 20~23)만 실제 그림이고, 나머지는 하던 말을
+    // 그래픽 영역에 점자로 계속 띄우는 화면입니다. 부모가 "그림이 없네?" 하고
+    // 헷갈리지 않도록 지금 어느 쪽인지 표시합니다.
+    $('gfxMode').textContent = ILLUST_PAGES.has(p.page) ? '지금 그림이에요' : '점자로 듣는 중';
+    drawPin(p.gfx); renderStrip(); renderTrail(); renderCoach(); highlightKeys(); sendToPad();
+    $('prevBtn').disabled=(idx===0);
+    setFace('idle');
+    if(speakNow===false)return;
+    say('페이지 '+(idx+1)+'. '+(p.plain||''));
+    if(p.plain||p.audioUrl) Voice.speak(p.plain,{role:'dotpad',audioUrl:p.audioUrl,onEnd:afterNarration}); else afterNarration();
+  }
+
+  function afterNarration(){
+    const ia=pages[idx].iact;
+    const isLast=(idx===pages.length-1);
+    if(!ia||ia.type==='none'){
+      renderCoach();
+      if(isLast && !session.reportShown){ dingWin(); setFace('happy'); setTimeout(showReport,900); }
+      return;
+    }
+    setTimeout(()=>{ if(ia.promptChild) Voice.speak(ia.promptChild,{role:'dotpad',onEnd:openAsk}); else openAsk(); },300);
+  }
+  function openAsk(){
+    const ia=pages[idx].iact; if(!ia)return;
+    if(ia.choices||ia.expect){ ask.active=true; ask.resolved=false; ask.busy=false; say('아이의 답을 기다리는 중이에요.'); }
+    renderCoach(); highlightKeys();
+  }
+
+  /* ══ 판정 ══ */
+  function award(r){
+    if(!r)return{extra:'',sticker:null};
+    let extra='',sticker=null;
+    if(r.sparkle) prog.sparkle+=r.sparkle;
+    if(r.sticker&&prog.stickers.indexOf(r.sticker)===-1){
+      prog.stickers.push(r.sticker); sticker=r.sticker;
+      extra=' 그리고 '+((stickerDefs[r.sticker]||{}).name||r.sticker)+' 스티커를 받았어!';
+    }
+    Store.save(prog); renderStickers(sticker);
+    return{extra,sticker};
+  }
+  function tryAnswer(key){
+    const ia=pages[idx].iact;
+    if(!ia||!ask.active||ask.busy)return false;
+    if(ia.expect){ (key===ia.expect)?onCorrect(ia,null):onWrong(ia); return true; }
+    if(ia.choices){ const c=ia.choices.find(x=>x.key===key); if(!c)return false;
+      c.correct?onCorrect(ia,c):onWrong(ia); return true; }
+    return false;
+  }
+  function onCorrect(ia,choice){
+    ask.busy=true; ask.active=false; ask.resolved=true;
+    dingOK(); highlightKeys(); renderCoach(); setFace('happy');
+    $('field').classList.add('flash'); setTimeout(()=>$('field').classList.remove('flash'),520);
+    const burst=$('burst'); burst.classList.remove('fire'); void burst.offsetWidth; burst.classList.add('fire');
+    session.answered++; if(ask.tries===0) session.firstTry++;
+    const spec=ia.onCorrect||{}, got=award(spec.reward);
+    const line=(spec.say||'잘했어!')+got.extra;
+    say('정답이에요. '+line);
+    Voice.speak(line,{role:'dotpad',onEnd:()=>{
+      ask.busy=false;
+      if(idx<pages.length-1) setTimeout(()=>goto(idx+1),400);
+      else { dingWin(); setFace('happy'); setTimeout(()=>{ if(!session.reportShown) showReport(); },900); }
+    }});
+  }
+  function onWrong(ia){
+    ask.busy=true; ask.tries++;
+    const w=ia.onWrong||{}, max=(w.maxRetry!=null)?w.maxRetry:2;
+    if(ask.tries>max){
+      let line;
+      if(w.revealAfterMax&&ia.choices){ const c=ia.choices.find(x=>x.correct);
+        line='정답은 '+(c?c.label:'')+'이었어. 괜찮아, 다음 걸 해보자!'; }
+      else line='괜찮아. 다음으로 같이 가보자!';
+      ask.active=false; ask.resolved=true; setFace('cheer'); highlightKeys(); renderCoach(); say(line);
+      Voice.speak(line,{role:'dotpad',onEnd:()=>{ ask.busy=false; if(idx<pages.length-1) setTimeout(()=>goto(idx+1),400); }});
+      return;
+    }
+    dingMiss(); setFace('cheer'); sendToPad(); renderCoach();
+    const line=(ask.tries>=2&&w.hintAfter1)?w.hintAfter1:(w.say||'다시 해볼까?');
+    say(line);
+    Voice.speak(line,{role:'dotpad',onEnd:()=>{ ask.busy=false; }});
+  }
+
+  /* ══ 이동 ══ */
+  function goto(n,force){
+    if(!pages.length)return; ensureAudio();
+    const nx=Math.max(0,Math.min(pages.length-1,n));
+    if(nx===idx&&!force){ earcon(180,.12,'square'); return; }
+    idx=nx; brlPage=0; ask={active:false,tries:0,resolved:false,busy:false};
+    render(true);
+  }
+  const nextPage=()=>{earcon(660,.06);goto(idx+1);};
+  const prevPage=()=>{earcon(520,.06);goto(idx-1);};
+  function brlMove(d){
+    const p=pages[idx], n=brlPage+d;
+    if(n<0||n>=p.brlPages.length){earcon(180,.1,'square');return;}
+    brlPage=n; renderStrip(); sendToPad(); earcon(740,.05);
+    // P3 과제: 점자 구간 ↔ 평문 매핑. 지금은 줄 번호만.
+    Voice.speak((brlPage+1)+'번째 줄이야. 모두 '+p.brlPages.length+'줄 중에서.',{role:'dotpad'});
+  }
+  function replay(){ ensureAudio(); const p=pages[idx]; if(p.plain||p.audioUrl) Voice.speak(p.plain,{role:'dotpad',audioUrl:p.audioUrl,onEnd:afterNarration}); }
+  function restart(){ ensureAudio(); goto(0,true); }
+  function help(){ ensureAudio();
+    Voice.speak('질문이 나오면 길쭉한 동그라미 버튼으로 답하면 돼요. 왼쪽부터 첫 번째, 두 번째, 세 번째, 네 번째예요. '+
+      '그냥 다음으로 넘어가려면 네 번째 버튼을 누르세요. 점자 줄을 넘기려면 양쪽 끝 세모 버튼이에요.',{role:'system'}); }
+
+  /* ══ 닷패드 ══ */
+  function handlePadKey(code){
+    if(!KeyCodes)return;
+    if(!$('fcOverlay').hidden || !$('reportOverlay').hidden)return; // 모달 중엔 실물 버튼도 배경 진행에 영향 주지 않음
+    const map={}; map[KeyCodes.KeyFunction1]='F1'; map[KeyCodes.KeyFunction2]='F2';
+    map[KeyCodes.KeyFunction3]='F3'; map[KeyCodes.KeyFunction4]='F4';
+    map[KeyCodes.PanningLeft]='PanningLeft'; map[KeyCodes.PanningRight]='PanningRight';
+    const key=map[code];
+    if(key&&tryAnswer(key))return;
+    switch(code){
+      case KeyCodes.KeyFunction4: nextPage(); break;
+      case KeyCodes.KeyFunction1: prevPage(); break;
+      case KeyCodes.PanningRight: brlMove(1); break;
+      case KeyCodes.PanningLeft:  brlMove(-1); break;
+      case KeyCodes.PanningAll:   help(); break;
+      case KeyCodes.LPF1:         restart(); break;
+    }
+  }
+  async function loadSDK(){
+    try{
+      const m=await import('./dotpad-sdk/DotPadSDK-3.0.0.js');
+      KeyCodes=m.KeyCodes; DataCodes=m.DataCodes; sdk=new m.DotPadSDK(); scanner=new m.DotPadScanner();
+      sdk.setCallBack((d,c)=>{
+        if(c===DataCodes.Connected){ dpConnected=true; setDpUI(true);
+          setTimeout(()=>{try{sdk.displayAllDown();setTimeout(sendToPad,300);}catch(e){}},200); }
+        else if(c===DataCodes.Disconnected){ dpConnected=false; setDpUI(false); }
+      },(d,k)=>handlePadKey(k));
+      return true;
+    }catch(e){ return false; }
+  }
+  function setDpUI(on){
+    $('dpBtn').dataset.on=on?'1':'0';
+    $('dpLbl').textContent=on?'닷패드 연결됨':'닷패드 연결';
+    if(on && !firstConnectShown){ openFirstConnect(); }
+    else if(on) Voice.speak('닷패드가 다시 연결됐어요.',{role:'system'});
+  }
+
+  /* ══ 첫 연결 놀이 ══ */
+  let firstConnectShown=false;
+  const fcCv=$('fcCanvas'), fcCx=fcCv.getContext('2d');
+  function openFirstConnect(){
+    firstConnectShown=true;
+    document.querySelectorAll('.fc-shape').forEach(b=>b.setAttribute('aria-pressed','false'));
+    $('fcHint').textContent='위 세 모양 중 하나를 눌러 만져보세요.';
+    drawPinTo(fcCv, fcCx, '0'.repeat(GFX_HEX));
+    $('fcOverlay').hidden=false;
+    document.querySelector('.fc-shape').focus();
+    Voice.speak('짜잔, 닷패드가 연결됐어요! 아래 모양 중 하나를 눌러서 진짜 닷패드에도 똑같이 띄워볼까요?',{role:'dotpad'});
+  }
+  function closeFirstConnect(){
+    $('fcOverlay').hidden=true; Voice.stop();
+    if(pages.length) sendToPad();
+  }
+  function pickShape(name){
+    const hex=shapeHex(name);
+    drawPinTo(fcCv, fcCx, hex);
+    if(dpConnected && sdk){ try{ sdk.displayGraphicData(hex); }catch(e){} }
+    document.querySelectorAll('.fc-shape').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.shape===name)));
+    const lines={ heart:'하트가 떴어요! 손끝으로 테두리를 따라가 보세요.',
+                  smile:'웃는 얼굴이에요! 눈이랑 입이 만져지나요?',
+                  star:'반짝이는 별이에요! 뾰족한 꼭짓점을 세어볼까요?' };
+    $('fcHint').textContent = dpConnected ? '지금 실제 닷패드에도 똑같이 떠 있어요. 만져보세요!' : (lines[name]||'');
+    Voice.speak(lines[name]||'', {role:'dotpad'});
+  }
+  document.querySelectorAll('.fc-shape').forEach(b=>{
+    b.addEventListener('click',()=>pickShape(b.dataset.shape));
+  });
+  $('fcDone').addEventListener('click',closeFirstConnect);
+  document.addEventListener('keydown',ev=>{
+    if(ev.key==='Escape' && !$('fcOverlay').hidden) closeFirstConnect();
+    if(ev.key==='Escape' && !$('reportOverlay').hidden) closeReport();
+  });
+
+  /* ══ 완료 리포트 ══ */
+  function fmtDuration(ms){
+    const s=Math.max(0,Math.round(ms/1000)), m=Math.floor(s/60), r=s%60;
+    return m<=0 ? r+'초' : m+'분'+(r?' '+r+'초':'');
+  }
+  function showReport(){
+    session.reportShown=true;
+    Voice.stop();
+    const totalQ=pages.filter(p=>p.iact&&(p.iact.choices||p.iact.expect)).length;
+    $('rpStories').textContent=pages.length;
+    $('rpQuestions').textContent=session.answered+'/'+totalQ;
+    $('rpTime').textContent=fmtDuration(Date.now()-(session.startedAt||Date.now()));
+    const rate=session.answered ? session.firstTry/session.answered : 1;
+    $('rpNote').textContent = rate>=0.85 ? '질문에 척척 답했어요!'
+      : rate>=0.5 ? '차근차근 잘 배웠어요!' : '천천히, 그래도 끝까지 해냈어요!';
+    $('rpLede').textContent='손끝으로 '+pages.length+'개의 이야기를 다 만났어요.';
+    renderReportStickers();
+    $('reportOverlay').hidden=false;
+    document.getElementById('reportClose').focus();
+    Voice.speak('짜잔! 오늘 여정을 전부 끝냈어요. 정말 잘했어요!',{role:'dotpad'});
+  }
+  function renderReportStickers(){
+    const box=$('reportStickers'), ids=Object.keys(stickerDefs);
+    if(!ids.length){ box.hidden=true; return; }
+    box.hidden=false; box.innerHTML='';
+    ids.forEach(id=>{
+      const got=prog.stickers.indexOf(id)!==-1, def=stickerDefs[id]||{};
+      const el=document.createElement('div');
+      el.className='st'+(got?' got':'');
+      el.innerHTML='<div class="art"><canvas></canvas></div><b>'+(got?(def.name||id):'???')+'</b>';
+      box.appendChild(el);
+      if(def.page!=null) stickerArt(el.querySelector('canvas'), def);
+    });
+  }
+  function closeReport(){ $('reportOverlay').hidden=true; Voice.stop(); }
+  $('reportClose').addEventListener('click',closeReport);
+  $('reportRestart').addEventListener('click',()=>{
+    $('reportOverlay').hidden=true; Voice.stop();
+    session={startedAt:Date.now(),answered:0,firstTry:0};
+    restart();
+  });
+
+  async function connectPad(){
+    if(!navigator.bluetooth){ say('크롬이나 엣지에서 열어야 닷패드에 연결할 수 있어요.'); Voice.speak('크롬이나 엣지에서 열어 주세요.',{role:'system'}); return; }
+    if(!sdk){ loadSDK(); Voice.speak('닷패드를 준비하고 있어요. 잠시 후 다시 눌러 주세요.',{role:'system'}); return; }
+    try{
+      let dev=null;
+      try{ dev=await navigator.bluetooth.requestDevice({filters:[{namePrefix:'DotPad'},{namePrefix:'KM2-'},{namePrefix:'KM3-'},{namePrefix:'DPK'},{namePrefix:'DMI'}],optionalServices:[scanner.DOTPAD_SERVICE]}); }
+      catch(e){ if(e.name==='NotFoundError') dev=await navigator.bluetooth.requestDevice({acceptAllDevices:true,optionalServices:[scanner.DOTPAD_SERVICE]}); else throw e; }
+      if(dev){ say('닷패드에 연결하는 중이에요.'); await sdk.connectBleDevice(dev); }
+    }catch(e){ if(e.name!=='NotFoundError') say('연결하지 못했어요: '+(e.message||e.name)); }
+  }
+
+  /* ══ 입력 ══ */
+  document.addEventListener('keydown',ev=>{
+    if(!started)return;
+    if(!$('fcOverlay').hidden || !$('reportOverlay').hidden)return; // 모달이 열려 있으면 배경 단축키를 막습니다.
+    const tag=(ev.target&&ev.target.tagName)||''; if(tag==='INPUT'||tag==='TEXTAREA')return;
+    const k=ev.key;
+    if(k>='1'&&k<='4'){ if(tryAnswer('F'+k)){ev.preventDefault();return;} }
+    if(k==='ArrowRight'||k===' '||k==='Enter'){nextPage();ev.preventDefault();return;}
+    if(k==='ArrowLeft'){prevPage();ev.preventDefault();return;}
+    if(k==='ArrowDown'){ if(!tryAnswer('PanningRight')) brlMove(1); ev.preventDefault(); return; }
+    if(k==='ArrowUp'){ if(!tryAnswer('PanningLeft')) brlMove(-1); ev.preventDefault(); return; }
+    if(k==='r'||k==='R'){replay();ev.preventDefault();return;}
+    if(k==='h'||k==='H'||k==='?'){help();ev.preventDefault();return;}
+    if(k==='n'||k==='N'){restart();ev.preventDefault();return;}
+  });
+
+  const SVG_VOL='<svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 8a5 5 0 0 1 0 8"/><path d="M17.7 5a9 9 0 0 1 0 14"/><path d="M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5"/></svg>';
+  const SVG_MUTE='<svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 8a5 5 0 0 1 1.912 4.934m-1.377 2.602a5 5 0 0 1 -.535 .464"/><path d="M17.7 5a9 9 0 0 1 2.362 11.086m-1.676 2.299a9 9 0 0 1 -.686 .615"/><path d="M9.069 5.054l.431 -.554a.8 .8 0 0 1 1.5 .5v2m0 4v8a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l1.294 -1.664"/><path d="M3 3l18 18"/></svg>';
+  $('soundBtn').innerHTML=SVG_VOL;
+  $('soundBtn').addEventListener('click',()=>{
+    soundOn=!soundOn; Voice.setEnabled(soundOn);
+    $('soundBtn').setAttribute('aria-pressed',String(soundOn));
+    $('soundBtn').innerHTML=soundOn?SVG_VOL:SVG_MUTE;
+    $('soundBtn').setAttribute('aria-label',soundOn?'음성 켜짐, 누르면 끔':'음성 꺼짐, 누르면 켬');
+  });
+  $('nextBtn').addEventListener('click',nextPage);
+  $('prevBtn').addEventListener('click',prevPage);
+  $('replayBtn').addEventListener('click',replay);
+  $('helpBtn').addEventListener('click',help);
+  $('dpBtn').addEventListener('click',connectPad);
+  $('resetBtn').addEventListener('click',()=>{
+    if(!confirm('모은 별가루와 스티커를 모두 지울까요?'))return;
+    Store.clear(); prog={sparkle:0,stickers:[]}; renderStickers();
+  });
+  window.addEventListener('resize',()=>{clearTimeout(window.__rz);
+    window.__rz=setTimeout(()=>{if(pages.length)drawPin(pages[idx].gfx);},150);});
+
+  /* ══ 부팅 ══ */
+  function ready(json,sidecar,assetInfo){
+    try{
+      doc=json; pages=parseDTMS(json);
+      const merged=mergeSidecar(sidecar);
+      let resolved=null;
+      if(assetInfo) resolved=resolveAssets(pages, assetInfo.dtmFiles||{}, assetInfo.audioFiles||{});
+      buildKeys(); setFace('idle'); renderStickers();
+      // 세션 도중 다른 자료를 불러온 경우에도 항상 시작 화면으로 돌아가 재생을 새로 시작합니다.
+      Voice.stop(); started=false; idx=0; brlPage=0; ask={active:false,tries:0,resolved:false,busy:false};
+      $('main').hidden=true; $('gate').hidden=false;
+      $('gateTitle').textContent='닷패드를 만나러 갈까요?';
+      const qCount=merged?pages.filter(p=>p.iact&&(p.iact.choices||p.iact.expect)).length:0;
+      if(doc.title){ $('gateDoc').textContent='불러온 자료 · '+doc.title; $('gateDoc').hidden=false; }
+      else $('gateDoc').hidden=true;
+      let lede='손끝으로 그리고, 듣고, 답하면서 닷패드와 처음 인사를 나눠요.';
+      if(resolved && resolved.audioResolved) lede+=' 녹음 음성 '+resolved.audioResolved+'개 포함.';
+      $('gateLede').textContent=lede; $('gateLede').hidden=false;
+      $('chipStories').textContent=pages.length;
+      $('chipQuestions').textContent=qCount;
+      $('gateChips').hidden=false;
+      $('gateText').textContent=''; $('gateText').hidden=true;
+      $('gateAction').hidden=true; $('startBtn').hidden=false; $('startBtn').focus();
+      console.log('[닷친구] 페이지',pages.length,'· interaction',merged,
+        '· 점자 최대 줄',Math.max.apply(null,pages.map(p=>p.brlPages.length)),
+        resolved?('· dtm 자산 '+resolved.dtmResolved+'개 매칭, 누락 '+JSON.stringify(resolved.dtmMissing)+' · 오디오 '+resolved.audioResolved+'개'):'');
+    }catch(e){ fail('자료를 읽지 못했어요', e.message); }
+  }
+  function fail(title,detail){
+    $('gateTitle').textContent=title;
+    $('gateDoc').hidden=true; $('gateLede').hidden=true; $('gateChips').hidden=true;
+    $('gateText').textContent=detail||''; $('gateText').hidden=false;
+    $('gateAction').hidden=false; $('startBtn').hidden=true;
+  }
+  function start(){
+    started=true; $('gate').hidden=true; $('main').hidden=false; $('scoreBox').hidden=false;
+    session={startedAt:Date.now(), answered:0, firstTry:0};
+    ensureAudio(); idx=0; brlPage=0; render(false); loadSDK();
+    setTimeout(()=>render(true),150);
+  }
+  $('startBtn').addEventListener('click',start);
+
+  if(location.protocol==='file:'){
+    // file://로 직접 열면 fetch·이미지 상대경로가 전부 막힙니다(마스코트 이미지가
+    // 깨져 보이는 것도 이 때문). fetch를 시도조차 하지 않고 바로 정확한 원인을 안내합니다.
+    fail('서버로 열어야 해요','지금 파일을 더블클릭으로 직접 연 것 같아요(file://). 그러면 이미지도, 자료도 못 불러옵니다. '+
+      '폴더에서 터미널을 열고 npx serve . 또는 python3 -m http.server 를 실행한 뒤, http://localhost 주소로 다시 열어 주세요. '+
+      '지금 당장 확인만 하고 싶다면 아래에서 파일을 직접 선택해도 돼요(이 경우 마스코트 이미지는 계속 안 보일 수 있어요).');
+  } else {
+    Promise.all([
+      fetch(SRC).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}),
+      fetch(IACT_SRC).then(r=>r.ok?r.json():null).catch(()=>null)
+    ]).then(([d,s])=>ready(d,s))
+     .catch(()=>fail('자료를 열 수 없어요','브라우저가 로컬 파일 읽기를 막고 있어요. 아래 "다른 자료 불러오기"로 직접 선택해 주세요.'));
+  }
+
+  // 여러 파일(.dtms/.dtma 본문 + .dtm 자산 + 오디오)을 한 번에 받아 분류합니다.
+  // 본문 파일은 확장자와 무관하게 JSON을 파싱해 items[] 배열이 있는지로 판별합니다.
+  //
+  // .dtma 실제 구조(tw-app ExportMenu.tsx 실 코드로 확인, 2026-08-12):
+  //   buildDtma() 가 만드는 .dtma 는 JSON이 아니라 "오디오를 포함한 ZIP 바이너리"입니다.
+  //   (.dtm 자체는 반대로 순수 헥스 텍스트 하나 — encodeDtmsHex 결과를 그대로 파일로 저장.)
+  //   이 zip의 내부 파일 배치까지는 코드에 없어 확인 못 했으므로, zip을 열어
+  //   "items[] 있는 JSON"과 "오디오 확장자 파일"을 각각 찾는 방식으로 방어적으로 처리합니다.
+  //   레이아웃이 다르면 zipEntries 로그로 바로 알 수 있습니다.
+  function isZipFile(bytes){
+    return bytes && bytes.length>=4 && bytes[0]===0x50 && bytes[1]===0x4B && bytes[2]===0x03 && bytes[3]===0x04;
+  }
+  async function unpackDtma(file){
+    if(typeof JSZip==='undefined'){
+      console.warn('[닷친구] JSZip을 못 불러왔어요(vendor/jszip.min.js 확인) — .dtma를 열 수 없습니다.');
+      return null;
+    }
+    const buf=await file.arrayBuffer();
+    const head=new Uint8Array(buf.slice(0,4));
+    if(!isZipFile(head)) return null; // zip이 아니면 호출부에서 JSON 등 다른 경로로 재시도
+    const zip=await JSZip.loadAsync(buf);
+    const names=Object.keys(zip.files).filter(n=>!zip.files[n].dir);
+    console.log('[닷친구] .dtma 내부 파일:', names);
+    let mainJson=null, sidecarJson=null; const audioFiles={};
+    for(const name of names){
+      const entry=zip.files[name];
+      const base=name.split('/').pop();
+      if(/\.(mp3|wav|ogg|m4a|aac|webm)$/i.test(base)){
+        const ab=await entry.async('arraybuffer');
+        const url=URL.createObjectURL(new Blob([ab]));
+        audioFiles[base]=url; audioFiles[base.replace(/\.[^.]+$/,'')]=url;
+        continue;
+      }
+      if(/\.(json|dtms|dtm)$/i.test(base)){
+        const text=await entry.async('text');
+        let parsed=null; try{ parsed=JSON.parse(text); }catch(e){}
+        if(parsed && Array.isArray(parsed.items) && !mainJson) mainJson=parsed;
+        else if(parsed && parsed.pages && typeof parsed.pages==='object') sidecarJson=parsed;
+      }
+    }
+    return { mainJson, sidecarJson, audioFiles, zipNames:names };
+  }
+
+  async function loadFromFiles(fileList){
+    const files=Array.from(fileList);
+    if(!files.length) return;
+    const audioFiles={}, dtmFiles={};
+    let mainJson=null, sidecarJson=null, mainName='';
+    for(const f of files){
+      // 확장자와 무관하게 먼저 ZIP 여부(PK 헤더)를 확인합니다 — 실제 .dtma가 ZIP이므로
+      // 확장자만으로 audio/json 분기를 태우면 안 됩니다.
+      let head=null;
+      try{ head=new Uint8Array(await f.slice(0,4).arrayBuffer()); }catch(e){}
+      if(isZipFile(head)){
+        const unpacked=await unpackDtma(f);
+        if(unpacked){
+          if(unpacked.mainJson && !mainJson){ mainJson=unpacked.mainJson; mainName=f.name; }
+          if(unpacked.sidecarJson) sidecarJson=unpacked.sidecarJson;
+          Object.assign(audioFiles, unpacked.audioFiles);
+          console.log('[닷친구:파일분류]', f.name, '→ .dtma(zip) 로 인식, 내부', unpacked.zipNames.length, '개 항목');
+        }
+        continue;
+      }
+      const isAudio = (f.type&&f.type.indexOf('audio/')===0) || /\.(mp3|wav|ogg|m4a|aac|webm)$/i.test(f.name);
+      console.log('[닷친구:파일분류]', f.name, 'type=', JSON.stringify(f.type), 'isAudio=', isAudio);
+      if(isAudio){
+        const url=URL.createObjectURL(f);
+        audioFiles[f.name]=url; audioFiles[f.name.replace(/\.[^.]+$/,'')]=url;
+        continue;
+      }
+      let text=''; try{ text=await f.text(); }catch(e){ continue; }
+      let parsed=null; try{ parsed=JSON.parse(text); }catch(e){}
+      if(parsed && Array.isArray(parsed.items)){
+        if(!mainJson){ mainJson=parsed; mainName=f.name; }
+      } else if(parsed && parsed.pages && typeof parsed.pages==='object'){
+        sidecarJson=parsed;
+      } else {
+        const hex=extractHexFromDtm(text);
+        console.log('[닷친구:파일분류]', f.name, 'JSON파싱=', !!parsed, '헥스추출=', hex?('성공 '+hex.length+'자'):'실패', 'text앞30자=', JSON.stringify(text.slice(0,30)));
+        if(hex){ dtmFiles[f.name]=hex; dtmFiles[f.name.replace(/\.[^.]+$/,'')]=hex; }
+      }
+    }
+    if(!mainJson){
+      fail('본문 파일을 찾지 못했어요','선택한 파일 중 items 배열을 가진 .dtms 또는 .dtma 파일이 있는지 확인해 주세요. .dtm·오디오 파일만으로는 재생할 수 없어요.');
+      return;
+    }
+    console.log('[닷친구] 본문:',mainName,'· dtm 자산 후보',Object.keys(dtmFiles).length,'· 오디오 후보',Object.keys(audioFiles).length);
+    ready(mainJson, sidecarJson, {dtmFiles, audioFiles});
+  }
+
+  $('filePick').addEventListener('change',ev=>{ loadFromFiles(ev.target.files); ev.target.value=''; });
+  $('loadBtn').addEventListener('click',()=>$('filePick').click());
+
+  document.body.addEventListener('pointerdown',function once(){
+    ensureAudio(); try{speechSynthesis.resume();}catch(e){}
+    document.body.removeEventListener('pointerdown',once);
+  },{once:true});
+
+  window.getDotpadFrame=()=>(pages.length?pages[idx].gfx:null);
+  window.__dotbuddy={get pages(){return pages;},get idx(){return idx;},get ask(){return ask;},goto,answer:tryAnswer,
+    openFirstConnect,pickShape,get firstConnectShown(){return firstConnectShown;}};
+})();
+</script>
+</body>
+</html>

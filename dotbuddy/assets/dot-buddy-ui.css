@@ -1,0 +1,56 @@
+/* DOT BUDDY / Tactile Studio shared foundation
+   Mapped from the supplied Tactile Studio host tokens. One surface, one border,
+   one radius scale and one action hierarchy are used across the whole lesson. */
+:root{
+  --ts-primary:#FF4F00;--ts-primary-hover:#E04500;--ts-bg:#FBF8F2;--ts-surface:#FFF;
+  --ts-ink:#1F1D1A;--ts-ink-soft:#5C574E;--ts-line:#ECE6DC;--ts-danger:#D14343;
+  --db-primary-ink:#C43D00;--db-focus:#1F1D1A;--db-radius:14px;--db-radius-sm:8px;
+  --db-content:1080px;--db-shadow:0 16px 36px -30px rgba(31,29,26,.35);
+}
+
+/* Application frame */
+body{padding:clamp(14px,1.7vw,24px) clamp(16px,3vw,36px) 48px;background-color:var(--ts-bg);color:var(--ts-ink)}
+.shell{width:min(100%,var(--db-content));min-height:calc(100vh - 68px);gap:12px}
+.top{min-height:54px;padding:0 4px;align-items:center;gap:16px}
+.brand{max-width:min(620px,64vw);color:var(--ts-ink);font-size:clamp(20px,1.7vw,24px);font-weight:770;letter-spacing:-.052em;overflow-wrap:anywhere}
+.eyebrow{margin-bottom:4px;color:var(--ts-ink-soft);font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+
+/* Select mirrors the Studio's compact, bordered control—not a floating glass pill. */
+.lang-switch{position:relative;flex:0 0 auto;min-width:160px;height:42px;border:1px solid var(--ts-line);border-radius:var(--db-radius-sm);background:var(--ts-surface);box-shadow:none}
+.lang-switch select{appearance:none;width:100%;height:100%;padding:0 36px 0 14px;border:0;border-radius:inherit;background:transparent;color:var(--ts-ink);font:inherit;font-size:14px;font-weight:650;letter-spacing:-.02em;cursor:pointer;outline:0}
+.lang-switch::after{content:"⌄";position:absolute;top:50%;right:14px;transform:translateY(-58%);color:var(--ts-ink-soft);font-size:19px;font-weight:700;line-height:1;pointer-events:none}
+.lang-switch:focus-within{border-color:var(--db-focus);box-shadow:0 0 0 3px rgba(31,29,26,.16)}
+
+/* Welcome screen: clear two-part editor-like card, no competing glass or purple theme. */
+.gate{display:grid;grid-template-columns:minmax(310px,.84fr) minmax(420px,1.16fr);align-items:stretch;min-height:min(530px,calc(100vh - 108px));height:auto;max-height:none;padding:0;overflow:hidden;border:1px solid var(--ts-line);border-radius:var(--db-radius);background:var(--ts-surface);box-shadow:var(--db-shadow)}
+.gate::before{display:none}.gate::after{display:none}
+.gate-visual{position:relative;z-index:1;display:grid;align-self:stretch;place-items:center;min-height:0;height:auto;padding:48px 32px;overflow:hidden;background:linear-gradient(145deg,#FFF 0%,#FEF2E9 100%);border-right:1px solid var(--ts-line)}
+.gate-visual::before{content:"DOTPAD · TACTILE SYSTEM";position:absolute;top:26px;left:50%;transform:translateX(-50%);color:var(--ts-ink-soft);font:700 10px/1 "Wanted Sans Variable",sans-serif;letter-spacing:.18em;white-space:nowrap}
+.gate-visual::after{content:"";position:absolute;width:min(73%,320px);aspect-ratio:1;border:1px solid var(--ts-line);border-radius:50%;box-shadow:0 0 0 18px rgba(255,79,0,.035),0 0 0 36px rgba(255,79,0,.022)}
+.gate-medallion{position:relative;z-index:1;width:min(258px,72%)}
+.medallion-field circle{fill:#E9E2D8}.medallion-heart circle{fill:var(--ts-primary);filter:drop-shadow(0 4px 8px rgba(196,61,0,.18))}.gate-mascot{width:150px;filter:drop-shadow(0 14px 16px rgba(31,29,26,.16))}
+.gate-orbit.a{top:92px;right:12%;background:#FFD270}.gate-orbit.b{bottom:12%;left:12%;background:#CFC4EF}.gate-orbit.c{right:10%;bottom:22%;border-color:#FFB09D;background:#FEF2E9}
+.gate-content{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:flex-start;align-self:stretch;min-width:0;padding:clamp(34px,4.2vw,52px) clamp(36px,5vw,64px);background:var(--ts-surface)}
+.gate-kicker{order:1;display:inline-flex;align-items:center;width:fit-content;margin:0;padding:6px 9px;border:1px solid var(--ts-line);border-radius:var(--db-radius-sm);background:#FFF;color:var(--db-primary-ink)!important;font-size:10px!important;font-weight:760!important;letter-spacing:.14em!important;line-height:1}
+.gate h1{order:2;max-width:11ch;margin:16px 0 0;color:var(--ts-ink);font-size:clamp(37px,3.7vw,52px);font-weight:790;letter-spacing:-.075em;line-height:1.12;overflow-wrap:anywhere}
+.gate-doc{order:3;margin:16px 0 0;padding-top:15px;border-top:1px solid var(--ts-line);color:var(--ts-ink-soft);font-size:13px;font-weight:560;line-height:1.5}
+.gate-lede{order:4;max-width:34ch;margin:13px 0 0;color:var(--ts-ink-soft);font-size:15px;font-weight:500;line-height:1.65}
+.gate-chips{order:5;display:flex;flex-wrap:wrap;gap:8px;margin:20px 0 0}.chip{padding:7px 11px;border:1px solid var(--ts-line);border-radius:var(--db-radius-sm);background:#FFF;box-shadow:none;color:var(--ts-ink-soft);font-size:12px;font-weight:600}
+.gate-proof{order:6;max-width:34ch;margin:18px 0 0;color:var(--ts-ink-soft);font-size:12px;font-weight:650;line-height:1.45}.gate-proof::first-letter{color:var(--db-primary-ink)}
+.gate #gateAction{order:7}.gate #gateText{order:8}
+.gate .btn-accent{order:9;display:inline-flex;justify-content:space-between;width:100%;max-width:306px;min-width:0;height:48px;margin:22px 0 0;padding:0 16px;border:1px solid var(--db-primary-ink);border-radius:var(--db-radius-sm);background:var(--db-primary-ink);box-shadow:none;color:#FFF;font-size:14px;font-weight:720;transform:none}
+.gate .btn-accent:hover{border-color:var(--ts-primary-hover);background:var(--ts-primary-hover);box-shadow:none;transform:none}.gate .btn-accent:active{background:#A93200;transform:translateY(1px);box-shadow:none}
+
+/* Shared components: the same Tactile Studio card and compact-button grammar. */
+.btn{min-height:42px;border-radius:var(--db-radius-sm)!important;border-color:var(--ts-line)!important;background:var(--ts-surface);box-shadow:none!important;color:var(--ts-ink)}
+.btn:hover{background:#FEF2E9;transform:none}.btn:focus-visible{outline:3px solid var(--db-focus);outline-offset:3px}.btn-accent,.btn-go{border-color:var(--db-primary-ink)!important;background:var(--db-primary-ink)!important;color:#FFF}.btn-accent:hover,.btn-go:hover{background:var(--ts-primary-hover)!important}.btn-ghost{background:var(--ts-surface)!important;color:var(--ts-ink)!important}
+.bubble,.coach,.shelf,.fc-panel,.rp-panel{border:1px solid var(--ts-line)!important;border-radius:var(--db-radius)!important;background:var(--ts-surface)!important;box-shadow:var(--db-shadow)!important}
+.bubble{padding:18px 20px}.coach,.shelf{padding:17px 18px;background:#FBF8F2!important;box-shadow:none!important}.coach.ask{border-color:var(--ts-primary)!important;box-shadow:0 0 0 3px rgba(255,79,0,.12)!important}.coach.ok{border-color:#1F6F43!important;box-shadow:0 0 0 3px rgba(31,111,67,.12)!important}
+.device{border:1px solid var(--ts-line)!important;border-radius:var(--db-radius)!important;background:#FEF2E9!important;box-shadow:0 8px 20px -22px rgba(31,29,26,.34)!important}.fc-panel,.rp-panel{border-radius:var(--db-radius)!important}.score,.pill{border-color:var(--ts-line)!important;background:#FEF2E9!important;color:var(--ts-ink)!important}
+.lesson-stage{margin-top:12px}.bar{padding-top:2px}.bar .btn:not(.btn-accent):not(.btn-go){border-color:transparent!important;background:transparent!important;color:var(--ts-ink-soft)}.bar .btn:not(.btn-accent):not(.btn-go):hover{background:#FEF2E9!important;color:var(--ts-ink)}
+.lesson-stage{grid-template-columns:minmax(0,1fr) minmax(250px,350px);gap:24px}.line{overflow-wrap:anywhere}.device{width:100%;min-width:0}.bar{gap:12px}.bar .spacer{min-width:0}
+
+@media (max-width:920px){.gate{grid-template-columns:minmax(280px,.84fr) minmax(350px,1.16fr)}.gate-content{padding:34px 38px}.gate h1{font-size:clamp(36px,5vw,48px)}.lesson-stage{grid-template-columns:minmax(0,1fr) minmax(220px,310px)}}
+@media (max-width:700px){body{padding:14px 12px 32px;background-position:61% center}.shell{min-height:calc(100vh - 46px);gap:14px}.top{align-items:flex-start;padding:0 2px}.top>:first-child{min-width:0;flex:1 1 180px}.brand{max-width:none;font-size:clamp(20px,5.5vw,23px);line-height:1.12}.eyebrow{margin-top:2px;font-size:10px}.lang-switch{min-width:126px;height:42px}.lang-switch select{padding-left:13px;font-size:14px}.gate{grid-template-columns:1fr;min-height:0;max-height:none;border-radius:var(--db-radius)}.gate-visual{min-height:224px;padding:42px 24px 24px;border-right:0;border-bottom:1px solid var(--ts-line)}.gate-visual::before{top:20px;max-width:calc(100% - 32px);overflow:hidden;text-overflow:ellipsis;font-size:9px;letter-spacing:.12em}.gate-visual::after{width:205px}.gate-medallion{width:172px}.gate-mascot{width:102px}.gate-content{display:block;padding:26px 24px 30px}.gate h1{max-width:12ch;margin-top:15px;font-size:clamp(34px,9.4vw,43px)}.gate-doc{margin-top:13px;padding-top:13px}.gate-lede{margin-top:12px}.gate-chips,.gate-proof{margin-top:16px}.gate .btn-accent{max-width:none;margin-top:19px}.lesson-stage{grid-template-columns:1fr;gap:14px}.say{gap:10px}.avatar{width:52px;height:52px;border-radius:var(--db-radius)}.avatar img{width:40px;height:40px}.bubble{padding:15px 16px}.line{font-size:18px}.device{max-width:480px;margin-inline:auto}.bar{align-items:stretch}.bar .btn{flex:1 1 calc(50% - 6px)}.bar .spacer{display:none}}
+@media (max-width:390px){.top{gap:10px}.lang-switch{min-width:112px}.lang-switch select{font-size:13px}.gate h1{font-size:34px}.bar .btn{flex-basis:100%}}
+@media (prefers-reduced-transparency:reduce){.bubble,.lang-switch{background:#FFF;backdrop-filter:none}}
