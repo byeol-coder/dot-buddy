@@ -55,7 +55,9 @@
   .skip-link:focus{top:16px;outline:3px solid #fff;outline-offset:2px;}
   body{
     font-family:"Wanted Sans Variable","Wanted Sans","Apple SD Gothic Neo",system-ui,sans-serif;
-    background:linear-gradient(90deg,rgba(255,253,247,.94) 0%,rgba(251,248,242,.72) 46%,rgba(243,236,221,.18) 100%),url("./assets/dot-buddy-hero-background.png") center / cover fixed;
+    /* 초기 진입에서 사용하지 않는 1.5MB 배경 이미지는 불러오지 않습니다.
+       체험 시작 화면은 서비스 콘솔의 웜화이트 표면만으로 즉시 표시됩니다. */
+    background:#F8F6F1;
     color:var(--ink); -webkit-font-smoothing:antialiased; line-height:1.5;
     padding:22px 18px 44px;
   }
@@ -553,7 +555,6 @@
 </div>
 
 <script src="./tts-local.js"></script>
-<script src="./vendor/jszip.min.js"></script>
 <script>
 (function(){
   "use strict";
@@ -581,6 +582,20 @@
   const IACT_SRC=params.get('iact')||SRC.replace(/\.dtms$/i,'.iact.json');
 
   let doc=null,pages=[],stickerDefs={},idx=0,brlPage=0;
+  // .dtma 압축 자료를 실제로 불러올 때만 96KB JSZip을 가져옵니다.
+  // 첫 체험 화면은 이 라이브러리 없이 바로 준비됩니다.
+  let jsZipLoading=null;
+  function ensureJSZip(){
+    if(window.JSZip) return Promise.resolve(window.JSZip);
+    if(jsZipLoading) return jsZipLoading;
+    jsZipLoading=new Promise((resolve,reject)=>{
+      const s=document.createElement('script'); s.src='./vendor/jszip.min.js'; s.async=true;
+      s.onload=()=>window.JSZip?resolve(window.JSZip):reject(new Error('JSZip을 불러오지 못했어요.'));
+      s.onerror=()=>reject(new Error('압축 자료 도구를 불러오지 못했어요.'));
+      document.head.appendChild(s);
+    });
+    return jsZipLoading;
+  }
   let ILLUST_PAGES=new Set();  // 그림이 실제로 그려지는 페이지(육안 확인). 그 외엔 내레이션의 점자 표시.
   let soundOn=true, ac=null, started=false;
   let sdk=null,scanner=null,KeyCodes=null,DataCodes=null,dpConnected=false;
@@ -1275,10 +1290,7 @@
     return bytes && bytes.length>=4 && bytes[0]===0x50 && bytes[1]===0x4B && bytes[2]===0x03 && bytes[3]===0x04;
   }
   async function unpackDtma(file){
-    if(typeof JSZip==='undefined'){
-      console.warn('[DOT BUDDY] JSZip을 못 불러왔어요(vendor/jszip.min.js 확인) — .dtma를 열 수 없습니다.');
-      return null;
-    }
+    try{ await ensureJSZip(); }catch(e){ console.warn('[DOT BUDDY] JSZip을 못 불러왔어요 — .dtma를 열 수 없습니다.'); return null; }
     const buf=await file.arrayBuffer();
     const head=new Uint8Array(buf.slice(0,4));
     if(!isZipFile(head)) return null; // zip이 아니면 호출부에서 JSON 등 다른 경로로 재시도
