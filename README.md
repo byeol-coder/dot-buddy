@@ -17,11 +17,11 @@
 python3 -m http.server 8000
 ```
 
-그 다음 `http://localhost:8000`을 열면 됩니다. 루트 주소는 `dotbuddy/`로 이동합니다.
+그 다음 `http://localhost:8000`을 열면 됩니다. 체험 앱은 저장소 루트에서 바로 제공됩니다.
 
 ## 현장 운영과 연동
 
-`dotbuddy/service-console.js`는 체험 이벤트를 기기 내에 우선 저장합니다. 기관 CRM, 예약, 상담 기록 시스템과 연결할 때는 페이지가 실행되기 전에 `window.DotBuddyIntegration.track(event)` 어댑터를 제공하면 같은 이벤트를 외부 시스템으로 전달할 수 있습니다.
+`service-console.js`는 체험 이벤트를 기기 내에 우선 저장합니다. 기관 CRM, 예약, 상담 기록 시스템과 연결할 때는 페이지가 실행되기 전에 `window.DotBuddyIntegration.track(event)` 어댑터를 제공하면 같은 이벤트를 외부 시스템으로 전달할 수 있습니다.
 
 ### 리드와 전환 이벤트
 
