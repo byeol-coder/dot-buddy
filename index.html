@@ -340,6 +340,7 @@
   @media (prefers-reduced-motion:reduce){ *{animation:none!important;transition:none!important;} }
 </style>
 <link rel="stylesheet" href="./assets/dot-buddy-ui.css">
+<link rel="stylesheet" href="./assets/ui-pro-max.css">
 </head>
 <body>
 <a class="skip-link" id="skipLink" href="#main" hidden>학습 화면으로 건너뛰기</a>
@@ -349,8 +350,8 @@
     <span><b>DOT BUDDY</b><em>체험 세션</em></span>
   </a>
   <nav class="site-nav" aria-label="주요 메뉴">
-    <a href="#gate">체험하기</a>
-    <a href="#quickActions">내 활동</a>
+    <a href="#gate">체험 안내</a>
+    <a href="#quickActions">보호자·기관</a>
     <button type="button" onclick="document.getElementById('openLead')?.click()">Dot Pad</button>
   </nav>
   <div class="service-session" aria-label="현재 세션 상태">
@@ -391,7 +392,7 @@
     </div>
 
     <div class="gate-content">
-    <p class="gate-kicker">TOUCH · LISTEN · DISCOVER</p>
+    <p class="gate-kicker">DOT PAD GUIDED EXPERIENCE</p>
     <p class="gate-doc" id="gateDoc" hidden></p>
     <h1 id="gateTitle">손끝으로, 닷패드를 만나볼까요?</h1>
     <p class="gate-lede" id="gateLede">체험 자료를 준비하고 있어요. 준비가 끝나면 바로 시작할 수 있어요.</p>
@@ -411,7 +412,20 @@
       <span id="startLabel">첫 촉각 여행 시작하기</span>
       <svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6l-6 6"/></svg>
     </button>
+    <p class="gate-assurance"><span aria-hidden="true">✓</span> 첫 페이지가 준비되면 바로 시작할 수 있어요. 나머지 내용은 조용히 이어서 불러옵니다.</p>
     </div>
+  </section>
+  <section class="experience-map" aria-labelledby="experienceMapTitle">
+    <div class="experience-map__intro">
+      <p class="section-kicker">HOW THE SESSION WORKS</p>
+      <h2 id="experienceMapTitle">혼자 두지 않는<br>촉각 체험입니다.</h2>
+      <p>참여자, 보호자, 담당자가 같은 흐름을 보며 체험을 이어갈 수 있어요.</p>
+    </div>
+    <ol class="experience-steps">
+      <li><span class="step-number">01</span><div><h3>듣고 이해해요</h3><p>담당자의 짧은 안내와 슬라이드별 TTS를 언제든 다시 들을 수 있어요.</p></div></li>
+      <li><span class="step-number">02</span><div><h3>손끝으로 탐색해요</h3><p>화면의 촉각 미리보기와 실제 Dot Pad가 같은 내용을 보여줘요.</p></div></li>
+      <li><span class="step-number">03</span><div><h3>함께 다음을 정해요</h3><p>진행 기록을 바탕으로 보호자·기관에 필요한 도입 정보를 연결해요.</p></div></li>
+    </ol>
   </section>
   <section class="quick-actions" id="quickActions" aria-label="닷패드 체험 빠른 안내">
     <article class="action-card">
@@ -1530,6 +1544,7 @@
     <p class="lead-lede">구매 상담, 체험 기회, 가까운 공식 파트너 정보를 이메일로 보내드려요.</p>
     <label class="lead-label" for="leadEmail">이메일 주소</label>
     <input class="lead-input" id="leadEmail" name="email" type="email" inputmode="email" autocomplete="email" placeholder="name@example.com" required>
+    <p class="lead-error" id="leadError" role="alert" hidden>신청을 저장하지 못했어요. 잠시 후 다시 시도하거나 공식 파트너 목록을 확인해 주세요.</p>
     <label class="lead-check"><input id="marketingConsent" type="checkbox" required><span>Dot Pad 및 체험·구매 관련 마케팅 정보 수신에 동의합니다.</span></label>
     <button class="lead-submit" type="submit">정보 받아보기</button>
     <p class="lead-privacy">동의하지 않으면 이메일을 저장하지 않습니다. 언제든지 수신을 거부할 수 있습니다.</p>

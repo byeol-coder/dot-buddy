@@ -63,14 +63,18 @@
     ev.preventDefault();
     const email=$('leadEmail').value.trim();
     if (!email || !$('marketingConsent').checked) return;
-    const submit=leadForm.querySelector('.lead-submit'); submit.disabled=true; submit.textContent='신청 처리 중…';
+    const submit=leadForm.querySelector('.lead-submit'); const leadError=$('leadError');
+    leadError.hidden=true; submit.disabled=true; submit.textContent='신청 처리 중…';
     try {
       const delivered=await captureLead({email, marketingConsent:true, source:'dot-buddy-experience'});
       emit('lead_submitted',{source:'dot-buddy-experience',delivered});
       $('leadResultTitle').textContent = delivered ? '신청을 받았습니다.' : '파트너 정보를 확인해 보세요.';
       $('leadResultText').textContent = delivered ? '가까운 공식 파트너도 바로 확인할 수 있어요.' : '리드 저장 시스템이 연결되기 전에는 이메일을 외부로 전송하지 않습니다.';
       leadForm.querySelector('.lead-label').hidden=true; $('leadEmail').hidden=true; $('marketingConsent').closest('label').hidden=true; submit.hidden=true; leadForm.querySelector('.lead-privacy').hidden=true; leadResult.hidden=false;
-    } catch (_) { submit.disabled=false; submit.textContent='다시 시도하기'; emit('lead_submit_failed'); }
+    } catch (_) {
+      submit.disabled=false; submit.textContent='다시 시도하기'; leadError.hidden=false;
+      $('leadEmail').focus(); emit('lead_submit_failed');
+    }
   });
   document.querySelectorAll('.purchase-link').forEach(link=>link.addEventListener('click',()=>emit('purchase_link_clicked',{destination:link.href,label:link.textContent.trim()})));
   window.addEventListener('pagehide',()=>emit('session_ended',{slidesViewed:state.seen.size,replays:state.replays,currentSlide:state.lastPage}));
