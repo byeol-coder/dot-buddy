@@ -8,6 +8,8 @@
 <meta name="description" content="닷패드와 함께 손끝으로 탐색하고, 듣고, 답하며 배우는 촉각 학습 여정">
 <link rel="preload" href="./content/01_intro.dtms" as="fetch" crossorigin="anonymous">
 <link rel="preload" href="./content/01_intro.iact.json" as="fetch" crossorigin="anonymous">
+<link rel="preload" href="./content/01_intro/manifest.json" as="fetch" crossorigin="anonymous">
+<link rel="preload" href="./content/01_intro/pages/001.json" as="fetch" crossorigin="anonymous">
 <link rel="icon" type="image/png" sizes="160x159" href="./assets/mascot-avatar.png">
 <link rel="apple-touch-icon" href="./assets/mascot-avatar.png">
 <meta property="og:title" content="DOT BUDDY — Tactile Learning with DotPad">
@@ -91,6 +93,7 @@
   .trail{display:flex;gap:5px;flex-wrap:wrap;align-items:center;}
   .trail i{width:9px;height:9px;border-radius:50%;background:var(--line);transition:.25s ease;}
   .trail i.on{background:var(--accent);}
+  .trail i.pending{background:transparent;border:1px dashed var(--line);}
   .trail i.now{background:var(--accent);box-shadow:0 0 0 4px var(--accent-tint);transform:scale(1.35);}
   .trail-cap{font-family:ui-monospace,monospace;font-size:12px;font-weight:700;color:var(--ink-soft);margin-left:6px;}
 
@@ -591,6 +594,7 @@
   };
   const a=key=>(A11Y[LANG]||A11Y.ko)[key]||A11Y.ko[key];
   const SRC=params.get('src')||'./content/01_intro.dtms';
+  const MANIFEST_SRC=params.get('manifest')||'./content/01_intro/manifest.json';
   const IACT_SRC=params.get('iact')||SRC.replace(/\.dtms$/i,'.iact.json');
 
   let doc=null,pages=[],stickerDefs={},idx=0,brlPage=0,queuedStart=false;
@@ -742,6 +746,7 @@
       plain:(it.text&&it.text.plain)?String(it.text.plain):'',
       audioFile:(it.audio&&it.audio.fileName)||'', audioUrl:null, iact:normIact(it.interaction)}));
   }
+  function parsePageItem(it,i){ return parseDTMS({items:[it]})[0]; }
   // 순수 헥스 텍스트 파일이든, {data:...} 또는 {graphic:{data:...}} 형태의 JSON이든
   // 둘 다 시도해 600자리 그래픽 헥스를 뽑아냅니다. 실제 .dtm 원본을 아직 못 봐서
   // 두 가능성을 방어적으로 다 처리합니다 — 형식이 다르면 알려주세요.
@@ -956,6 +961,7 @@
   function renderTrail(){
     const t=$('trail'); t.innerHTML='';
     pages.forEach((p,i)=>{const d=document.createElement('i');
+      if(p&&p.loaded===false)d.className='pending';
       if(i<idx)d.className='on'; if(i===idx)d.className='now'; t.appendChild(d);});
     const cap=document.createElement('span'); cap.className='trail-cap';
     cap.textContent=(idx+1)+' / '+pages.length; t.appendChild(cap);
@@ -1052,6 +1058,13 @@
     if(!pages.length)return; ensureAudio();
     const nx=Math.max(0,Math.min(pages.length-1,n));
     if(nx===idx&&!force){ earcon(180,.12,'square'); return; }
+    if(pages[nx]&&pages[nx].loaded===false){
+      say((nx+1)+'번째 이야기를 불러오는 중이에요.');
+      $('coachText').textContent='다음 이야기를 준비하고 있어요. 잠시만 기다려 주세요.';
+      $('coachSub').hidden=true; $('pill').textContent='불러오는 중'; renderTrail();
+      loadPageLazy(nx).then(()=>goto(nx,true)).catch(()=>say('다음 이야기를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'));
+      return;
+    }
     idx=nx; brlPage=0; ask={active:false,tries:0,resolved:false,busy:false};
     render(true);
   }
@@ -1261,6 +1274,52 @@
         resolved?('· dtm 자산 '+resolved.dtmResolved+'개 매칭, 누락 '+JSON.stringify(resolved.dtmMissing)+' · 오디오 '+resolved.audioResolved+'개'):'');
     }catch(e){ fail('자료를 읽지 못했어요', e.message); }
   }
+  let progressive=null;
+  const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+  async function fetchJsonRetry(url,retries=2){
+    let last;
+    for(let attempt=0;attempt<=retries;attempt++){
+      try{return await fetchWithTimeout(url,8000).then(r=>r.json());}
+      catch(error){last=error;if(attempt<retries)await wait(400*(attempt+1)*(attempt+1));}
+    } throw last;
+  }
+  function applySidecarPage(page,sidecar){
+    const raw=sidecar&&sidecar.pages&&sidecar.pages[String(page.page)];
+    if(raw) page.iact=normIact(raw)||page.iact;
+    page.loaded=true; return page;
+  }
+  async function loadPageLazy(n){
+    if(!progressive) return pages[n];
+    const current=pages[n]; if(current&&current.loaded)return current;
+    if(progressive.loading[n])return progressive.loading[n];
+    const entry=progressive.manifest.pages[n];
+    progressive.loading[n]=fetchJsonRetry('./content/01_intro/'+entry.file).then(item=>{
+      const page=applySidecarPage(parsePageItem(item,n),progressive.sidecar);
+      pages[n]=page; delete progressive.loading[n]; renderTrail(); return page;
+    }).catch(error=>{delete progressive.loading[n]; throw error;});
+    return progressive.loading[n];
+  }
+  async function prefetchPages(){
+    for(let n=1;n<pages.length;n++){ try{await loadPageLazy(n);}catch(error){console.warn('[DOT BUDDY] page prefetch failed',n+1,error);} }
+  }
+  async function readyProgressive(manifest,sidecar,firstItem){
+    try{
+      doc=manifest; stickerDefs=(sidecar&&sidecar.stickers)||{}; ILLUST_PAGES=new Set((sidecar&&sidecar.illustrationPages)||[]);
+      pages=manifest.pages.map((entry,index)=>({page:entry.page,title:entry.title||'',loaded:false,index}));
+      progressive={manifest,sidecar,loading:{}};
+      pages[0]=applySidecarPage(parsePageItem(firstItem,0),sidecar);
+      buildKeys(); setFace('idle'); renderStickers();
+      Voice.stop(); started=false; idx=0; brlPage=0; ask={active:false,tries:0,resolved:false,busy:false};
+      $('main').hidden=true; $('gate').hidden=false; $('gateTitle').textContent=t('gateTitle');
+      if(doc.title){$('gateDoc').textContent='불러온 자료 · '+doc.title;$('gateDoc').hidden=false;}
+      $('gateLede').textContent=t('gateLede');$('gateLede').hidden=false;$('chipStories').textContent=pages.length;
+      $('chipQuestions').textContent=Object.keys((sidecar&&sidecar.pages)||{}).length;$('gateChips').hidden=false;
+      $('gateText').hidden=false;$('gateText').textContent='첫 이야기가 준비됐어요. 나머지 이야기는 이어서 준비하고 있어요.';
+      $('gateProof').hidden=false;$('gateAction').hidden=true;$('startBtn').hidden=false;$('startBtn').disabled=false;
+      if(queuedStart){queuedStart=false;start();} else $('startBtn').focus();
+      prefetchPages();
+    }catch(error){fail('자료를 읽지 못했어요',error.message);}
+  }
   function fail(title,detail){
     $('gateTitle').textContent=title;
     $('gateDoc').hidden=true; $('gateLede').hidden=true; $('gateChips').hidden=true;
@@ -1300,12 +1359,19 @@
       '지금 당장 확인만 하고 싶다면 아래에서 파일을 직접 선택해도 돼요(이 경우 마스코트 이미지는 계속 안 보일 수 있어요).');
   } else {
     Promise.all([
-      fetchWithTimeout(SRC).then(r=>r.json()),
-      fetchWithTimeout(IACT_SRC).then(r=>r.json()).catch(()=>null)
-    ]).then(([d,s])=>ready(d,s))
-     .catch(err=>fail('자료를 열 수 없어요',err.name==='AbortError'
-       ? '자료 연결이 오래 걸리고 있어요. 잠시 후 새로고침하거나, 아래에서 자료를 직접 선택해 주세요.'
-       : '체험 자료를 연결하지 못했어요. 새로고침하거나, 아래 "다른 자료 불러오기"로 직접 선택해 주세요.'));
+      fetchJsonRetry(MANIFEST_SRC),
+      fetchJsonRetry(IACT_SRC).catch(()=>null),
+      fetchJsonRetry('./content/01_intro/pages/001.json')
+    ]).then(([manifest,sidecar,first])=>readyProgressive(manifest,sidecar,first))
+     .catch(async err=>{
+       /* Legacy DTMS remains a safe fallback for older custom ?src= content. */
+       if(params.get('src')){
+         try{ const [d,s]=await Promise.all([fetchJsonRetry(SRC),fetchJsonRetry(IACT_SRC).catch(()=>null)]); ready(d,s); return; }catch(_){}
+       }
+       fail('자료를 열 수 없어요',err.name==='AbortError'
+         ? '첫 이야기를 준비하는 데 시간이 걸리고 있어요. 잠시 후 새로고침하거나, 아래에서 자료를 직접 선택해 주세요.'
+         : '체험 자료를 연결하지 못했어요. 새로고침하거나, 아래 "다른 자료 불러오기"로 직접 선택해 주세요.');
+     });
   }
 
   // 여러 파일(.dtms/.dtma 본문 + .dtm 자산 + 오디오)을 한 번에 받아 분류합니다.
